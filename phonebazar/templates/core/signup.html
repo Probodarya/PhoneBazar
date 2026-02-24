@@ -1,0 +1,115 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sign Up | PhoneBazar</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            background-color: #f4f7f6;
+            font-family: 'Inter', -apple-system, sans-serif;
+        }
+        .signup-container {
+            max-width: 450px;
+            margin: 60px auto;
+            background: #fff;
+            padding: 40px;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+        }
+        .logo-box {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        .logo-box img {
+            width: 220px; /* Adjusted for the new logo layout */
+            height: auto;
+        }
+        .header-text {
+            font-weight: 700;
+            color: #333;
+            margin-bottom: 5px;
+            text-align: center;
+        }
+        .sub-text {
+            color: #777;
+            font-size: 0.9rem;
+            margin-bottom: 25px;
+            text-align: center;
+        }
+        .custom-input {
+            height: 50px;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px !important;
+            font-size: 14px;
+            margin-bottom: 15px;
+        }
+        .custom-input:focus {
+            border-color: #2eaf7d;
+            box-shadow: 0 0 0 0.2rem rgba(46, 175, 125, 0.15);
+        }
+        /* Renamed to btn-phonebazar */
+        .btn-phonebazar {
+            background-color: #2eaf7d;
+            color: white;
+            font-weight: 600;
+            height: 50px;
+            border-radius: 8px;
+            width: 100%;
+            margin-top: 10px;
+            border: none;
+            transition: 0.3s;
+        }
+        .btn-phonebazar:hover {
+            background-color: #258f66;
+            color: white;
+        }
+        .login-link {
+            text-align: center;
+            margin-top: 20px;
+            font-size: 14px;
+        }
+        .login-link a {
+            color: #2eaf7d;
+            text-decoration: none;
+            font-weight: 600;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="signup-container">
+        <div class="logo-box">
+            <img src="{% static 'images/PhoneBazar_Logo.png' %}" alt="PhoneBazar">
+        </div>
+
+        <h4 class="header-text">Create Account</h4>
+        <p class="sub-text">Welcome to PhoneBazar. Join us to buy or sell phones.</p>
+
+        <form method="post" novalidate>
+            {% csrf_token %}
+
+            {% for field in form %}
+                <div class="mb-3">
+                    <label class="form-label small fw-bold text-muted">{{ field.label }}</label>
+                    {{ field }}
+                    {% if field.errors %}
+                        <div class="text-danger small">{{ field.errors.0 }}</div>
+                    {% endif %}
+                </div>
+            {% endfor %}
+
+            <button type="submit" class="btn btn-phonebazar">Continue</button>
+        </form>
+
+        <div class="login-link">
+            Already have an account? <a href="#">Login</a>
+        </div>
+    </div>
+</div>
+
+</body>
+</html>

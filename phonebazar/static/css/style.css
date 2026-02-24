@@ -1,0 +1,235 @@
+/* Center the form on the page */
+.signup-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    background-color: #f4f7f6;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+/* The White Card */
+.signup-card {
+    background: #ffffff;
+    padding: 40px;
+    border-radius: 12px;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+    width: 100%;
+    max-width: 400px;
+    text-align: center;
+}
+
+
+.signup-card h2 {
+    margin-bottom: 10px;
+    color: #333;
+    font-size: 28px;
+}
+
+.subtitle {
+    color: #777;
+    margin-bottom: 30px;
+    font-size: 14px;
+}
+
+/* Styling Django's default form outputs */
+.custom-form p {
+    text-align: left;
+    margin-bottom: 20px;
+}
+
+.custom-form label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 600;
+    color: #555;
+    font-size: 14px;
+}
+
+.custom-form input {
+    width: 100%;
+    padding: 12px 15px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    box-sizing: border-box; /* Important for width */
+    transition: border-color 0.3s ease;
+}
+
+.custom-form input:focus {
+    outline: none;
+    border-color: #007bff;
+    box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.1);
+}
+
+/* The Button */
+.submit-btn {
+    width: 100%;
+    padding: 12px;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.3s ease;
+    margin-top: 10px;
+}
+
+.submit-btn:hover {
+    background-color: #0056b3;
+}
+
+.footer-text {
+    margin-top: 20px;
+    font-size: 13px;
+    color: #888;
+}
+
+.footer-text a {
+    color: #007bff;
+    text-decoration: none;
+    font-weight: bold;
+}
+/* Core Page Reset */
+.main-wrapper {
+    background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+}
+
+/* The Card */
+.form-container {
+    background: #ffffff;
+    width: 100%;
+    max-width: 420px;
+    padding: 40px;
+    border-radius: 20px;
+    box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+}
+
+/* Brand Logo Styling */
+.brand-header {
+    text-align: center;
+    margin-bottom: 30px;
+}
+
+.brand-header h1 {
+    font-size: 2rem;
+    color: #333;
+    margin-bottom: 5px;
+}
+
+.brand-header h1 span {
+    color: #007bff; /* Blue brand color */
+}
+
+.brand-header p {
+    color: #777;
+    font-size: 0.9rem;
+}
+
+/* Django Form Styling (p tags) */
+.styled-form p {
+    margin-bottom: 18px;
+}
+
+.styled-form label {
+    display: block;
+    font-weight: 600;
+    margin-bottom: 8px;
+    color: #444;
+    font-size: 0.85rem;
+    text-transform: uppercase;
+}
+
+/* Targeting the Inputs directly */
+.styled-form input {
+    width: 100%;
+    padding: 12px 15px;
+    border: 2px solid #eee;
+    border-radius: 10px;
+    font-size: 1rem;
+    transition: all 0.3s ease;
+    box-sizing: border-box; /* Fixes width issues */
+}
+
+.styled-form input:focus {
+    border-color: #007bff;
+    outline: none;
+    box-shadow: 0 0 8px rgba(0, 123, 255, 0.1);
+}
+
+/* Error List Styling (if Django returns errors) */
+.errorlist {
+    color: #dc3545;
+    font-size: 0.8rem;
+    list-style: none;
+    padding: 0;
+    margin: 5px 0 0 0;
+}
+
+/* Button Styling */
+.btn-signup {
+    width: 100%;
+    background: #007bff;
+    color: white;
+    border: none;
+    padding: 14px;
+    border-radius: 10px;
+    font-size: 1rem;
+    font-weight: bold;
+    cursor: pointer;
+    margin-top: 10px;
+    transition: background 0.3s ease, transform 0.2s ease;
+}
+
+.btn-signup:hover {
+    background: #0056b3;
+    transform: translateY(-2px);
+}
+
+.btn-signup:active {
+    transform: translateY(0);
+}
+
+/* Footer Link */
+.form-footer {
+    text-align: center;
+    margin-top: 25px;
+    font-size: 0.9rem;
+    color: #666;
+}
+
+.form-footer a {
+    color: #007bff;
+    text-decoration: none;
+    font-weight: 600;
+}
+
+.form-footer a:hover {
+    text-decoration: underline;
+}
+.logo-box {
+    text-align: center;
+    margin-bottom: 30px;
+}
+/* Styling for a text-based logo if you don't have an image yet */
+.brand-name {
+    font-size: 28px;
+    font-weight: 800;
+    letter-spacing: -1px;
+    color: #1a1a1a;
+}
+.brand-name span {
+    color: #2eaf7d; /* Keeping the Cashify green for the 'Bazar' part */
+}
+.logo-box img {
+    height: 50px; /* Adjust height based on your actual logo file */
+    width: auto;
+}
+
