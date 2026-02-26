@@ -25,3 +25,7 @@ class UserSignupForm(UserCreationForm):
                 'class': 'form-control custom-input',
                 'placeholder': f'Enter {field.replace("_", " ").title()}'
             })
+
+class UserLoginForm(forms.Form):
+    email = forms.EmailField()
+    password = forms.CharField(widget=forms.PasswordInput())

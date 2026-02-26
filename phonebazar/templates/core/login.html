@@ -1,0 +1,44 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login | PhoneBazar</title>
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+</head>
+<body>
+
+<div class="cashify-login-wrapper">
+    <div class="login-card">
+        <div class="logo-container">
+            <img src="{% static 'images/PhoneBazar_Logo.png' %}" alt="PhoneBazar">
+        </div>
+
+        <div class="login-header">
+            <h2>Login</h2>
+            <p>Enter your details to continue</p>
+        </div>
+
+        <form method="post" class="cashify-form">
+            {% csrf_token %}
+            
+            <div class="form-fields">
+                {{ form.as_p }}
+            </div>
+
+            <div class="forgot-pass">
+                <a href="#">Forgot Password?</a>
+            </div>
+
+            <button type="submit" class="btn-submit">Login</button>
+        </form>
+
+        <div class="form-footer">
+            Don't have an account? <a href="{% url 'signup' %}">Sign Up</a>
+        </div>
+    </div>
+</div>
+
+</body>
+</html>
