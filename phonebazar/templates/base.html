@@ -1,13 +1,22 @@
-{% load static %}
-<html>
-  <head>
-    <link rel="stylesheet" href="{% static 'css/style.css' %}" />
-  </head>
-  <body>
-    {% include 'Buyernavbar.html' %}
-  
-    <div class="content">{% block content %} {% endblock content %}</div>
-
-    {% include 'footer.html' %}
-  </body>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    {% comment %} <link rel="stylesheet" href="{% static 'css/style.css' %}"> {% endcomment %}
+</head>
+<body>
+    {% comment %} //check rol for navbar... {% endcomment %}
+    {% if request.user.role == 'Buyer' %}
+        {% include 'bazar/buyer/Buyersiderbar.html' %}
+    {% elif request.user.role == 'Retailer' %}
+        {% include 'bazar/retailer/Retailernavbar.html' %}
+    {% elif request.user.role == 'Seller' %}
+        {% include 'bazar/seller/Sellernavbar.html' %}
+    {% endif %}
+    {% block content %}
+    {% endblock %}
+    footer...
+</body>
 </html>
