@@ -40,7 +40,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'core',
     'bazar',
- 
+    
 ]
 
 MIDDLEWARE = [
@@ -128,3 +128,13 @@ AUTH_USER_MODEL = 'core.User'
 STATICFILES_DIRS = [
     os.path.join(BASE_DIR, 'static'), 
 ]
+MEDIA_URL = '/media/'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+
+#email configuration
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+EMAIL_HOST_USER = 'princepython23@gmail.com'
+EMAIL_HOST_PASSWORD = 'rxlc djew jbqw vcec' #app password

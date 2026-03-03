@@ -4,11 +4,11 @@
             <div class="col-md-6 text-center text-md-start">
                 <span class="fw-bold">PhoneBazar</span> <small class="ms-2">© 2026. All Rights Reserved.</small>
             </div>
-            <div class="col-md-6 text-center text-md-end">
-                <a href="#" class="text-muted text-decoration-none mx-2 small">Help</a>
-                <a href="#" class="text-muted text-decoration-none mx-2 small">Privacy Policy</a>
-                <a href="#" class="text-muted text-decoration-none mx-2 small">Terms</a>
-            </div>
+                <div style="margin: 20px 0;">
+                    <a href="{% url 'help' %}" class="footer-link">Help</a>
+                    <a href="{% url 'privacy' %}" class="footer-link">Privacy Policy</a>
+                    <a href="{% url 'terms' %}" class="footer-link">Terms</a>
+                 </div>
         </div>
     </div>
 </footer>

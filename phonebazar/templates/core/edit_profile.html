@@ -1,0 +1,31 @@
+{% extends 'base.html' %}
+{% block title %}Edit Profile | PhoneBazar{% endblock %}
+
+{% block content %}
+<div class="legal-container" style="max-width: 600px;">
+    <h2 style="color: var(--primary-green); margin-bottom: 20px;">Edit My Profile</h2>
+    <p style="color: #666; margin-bottom: 30px;">Update your personal information below.</p>
+
+    <form method="POST" class="django-form">
+        {% csrf_token %}
+        
+        {% for field in form %}
+            <div style="margin-bottom: 20px;">
+                <label style="display: block; font-weight: 600; margin-bottom: 5px; color: #444;">
+                    {{ field.label }}
+                </label>
+                {{ field }}
+                {% if field.errors %}
+                    <small style="color: #dc3545;">{{ field.errors }}</small>
+                {% endif %}
+            </div>
+        {% endfor %}
+
+        
+        <div style="display: flex; gap: 15px; margin-top: 30px;">
+            <button type="submit" class="btn-primary" style="flex: 2;">Save Changes</button>
+            <a href="{% url 'profile' %}" style="flex: 1; text-align: center; padding: 10px; color: #888; text-decoration: none; border: 1px solid #ddd; border-radius: 25px;">Cancel</a>
+        </div>
+    </form>
+</div>
+{% endblock %}

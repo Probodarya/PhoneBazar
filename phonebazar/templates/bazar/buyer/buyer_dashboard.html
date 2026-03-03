@@ -1,6 +1,9 @@
 {% extends "base.html" %}
 {% block content %}
 <h1>BUYER DASHBOARD</h1>
+<P>{{request.user.role}}</P>
+<P>{{request.user.firstname}}</P>
 <p>{{request.user}}</p>
+
 {% endblock content %}
 

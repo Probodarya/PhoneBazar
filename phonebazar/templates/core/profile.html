@@ -1,0 +1,56 @@
+{% extends 'base.html' %}
+{% block title %}My Profile | PhoneBazar{% endblock %}
+
+{% block content %}
+<div class="legal-container" style="max-width: 700px;">
+    <div style="text-align: center; margin-bottom: 30px;">
+        <div style="width: 80px; height: 80px; background: var(--primary-green); color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 32px; font-weight: bold; margin: 0 auto 15px;">
+            {{ user.email|first|upper }}
+        </div>
+        <h1 style="margin: 0;">{{ user.get_full_name|default:user.firstname }}</h1>
+        <span class="user-badge" style="font-size: 1rem; padding: 5px 20px;">
+            Account Type: {{ user.role }}
+        </span>
+    </div>
+
+    <div style="border-top: 1px solid #eee; padding-top: 20px;">
+        <h3 style="color: var(--dark-green);">Account Details</h3>
+        
+        <table style="width: 100%; border-collapse: collapse;">
+         
+            <tr style="border-bottom: 1px solid #f9f9f9;">
+                <td style="padding: 15px 0; color: #888;">Email Address</td>
+                <td style="padding: 15px 0; font-weight: 600;">{{ user.email }}</td>
+            </tr>
+            <tr style="border-bottom: 1px solid #f9f9f9;">
+                <td style="padding: 15px 0; color: #888;">Full Name</td>
+                <td style="padding: 15px 0; font-weight: 600;">{{ user.firstname }} {{ user.lastname }}</td>
+            </tr>
+
+            <tr>
+                <td style="padding: 15px 0; color: #888;">Phone Number</td>
+                <td style="padding: 15px 0; font-weight: 600;">{{ user.mobile_number }}</td>
+            </tr>
+
+            <tr>
+                <td style="padding: 15px 0; color: #888;">Gender</td>
+                <td style="padding: 15px 0; font-weight: 600;">{{ user.gender }}</td>
+            </tr>
+            <tr style="border-bottom: 1px solid #f9f9f9;">
+                <td style="padding: 15px 0; color: #888;">Location</td>
+                <td style="padding: 15px 0; font-weight: 600;">Surat, Gujarat</td>
+            </tr>
+            <tr>
+                <td style="padding: 15px 0; color: #888;">Joined PhoneBazar</td>
+                <td style="padding: 15px 0; font-weight: 600;">{{ user.date_joined|date:"M d, Y" }}</td>
+            </tr>
+        </table>
+    </div>
+    
+
+    <div style="margin-top: 40px; display: flex; gap: 15px;">
+        <a href="{% url 'edit_profile' %}" class="btn-primary" style="text-decoration: none; flex: 1; text-align: center;">Edit Profile</a>
+        <a href="{% url 'logout' %}" style="text-decoration: none; flex: 1; text-align: center; color: #dc3545; border: 1px solid #dc3545; padding: 10px; border-radius: 25px; font-weight: bold;">Logout</a>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,40 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Welcome to PhoneBazar | Best Deals in Surat{% endblock %}
+
+{% block content %}
+<div class="hero-section">
+    <div class="hero-content">
+        <h1>Upgrade Your Tech with <span class="highlight">PhoneBazar</span></h1>
+        <p>The most trusted marketplace to buy and sell mobile phones. Verified devices, best prices, and local deals in Surat.</p>
+        
+        <div class="hero-buttons">
+            {% if not user.is_authenticated %}
+                <a href="{% url 'signup' %}" class="btn-primary">Get Started</a>
+                <a href="{% url 'login' %}" class="btn-secondary">Login to Account</a>
+            {% else %}
+                <a href="{% url 'Buyer_dashboard' %}" class="btn-primary">Explore Marketplace</a>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<div class="features-grid">
+    <div class="feature-card">
+        <div class="feature-icon">📱</div>
+        <h3>Verified Devices</h3>
+        <p>Every phone listed undergoes a strict quality check.</p>
+    </div>
+    <div class="feature-card">
+        <div class="feature-icon">🤝</div>
+        <h3>Direct Trading</h3>
+        <p>Connect directly with buyers and sellers in your city.</p>
+    </div>
+    <div class="feature-card">
+        <div class="feature-icon">🛡️</div>
+        <h3>Secure Deals</h3>
+        <p>Safe transactions with our PhoneBazar protection guide.</p>
+    </div>
+</div>
+{% endblock %}
