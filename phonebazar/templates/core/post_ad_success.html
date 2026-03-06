@@ -1,0 +1,23 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container mt-5 text-center">
+    <div class="card shadow p-5">
+        <h1 class="text-success">🎉 Listing Submitted!</h1>
+        <p class="lead">Your phone has been successfully added to our database.</p>
+        <hr>
+        <div class="text-start mx-auto" style="max-width: 500px;">
+            <h5>Next Steps:</h5>
+            <ul>
+                <li>Your listing is currently <strong>Unverified</strong>.</li>
+                <li>Visit our Surat service center for the <strong>Diagnostic Test</strong>.</li>
+                <li>Once verified, your ad will go live for buyers!</li>
+            </ul>
+        </div>
+        <div class="mt-4">
+            <a href="{% url 'Seller_dashboard' %}" class="btn btn-primary">Go to Dashboard</a>
+            <{% comment "" %}<a href="{% url 'marketplace_home' %}" class="btn btn-outline-secondary">Browse Marketplace</a>{% endcomment %}
+        </div>
+    </div>
+</div>
+{% endblock %}

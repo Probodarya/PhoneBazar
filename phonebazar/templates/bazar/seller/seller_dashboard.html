@@ -1,7 +1,131 @@
-{% extends "base.html" %}
+{% extends 'base.html' %}
 {% block content %}
-<h1>SELLER DASHBOARD</h1>
-<p>{{request.user.role}}</p>
-<p>{{request.user.firstname}}</p>
-<p>{{request.user}}</p>
-{% endblock content %}
+<div class="container mt-4">
+    <div class="row mb-4 text-center">
+        <div class="col-md-3">
+            <div class="card bg-primary text-white p-3 shadow-sm border-0">
+                <h6 class="text-uppercase small">Total Listings</h6>
+                <h2 class="display-6 fw-bold">{{ stats.total }}</h2>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-success text-white p-3 shadow-sm border-0">
+                <h6 class="text-uppercase small">Live & Verified</h6>
+                <h2 class="display-6 fw-bold">{{ stats.verified }}</h2>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-warning text-dark p-3 shadow-sm border-0">
+                <h6 class="text-uppercase small">Awaiting Testing</h6>
+                <h2 class="display-6 fw-bold">{{ stats.pending }}</h2>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-white text-dark p-3 shadow-sm border-0">
+                <h6 class="text-uppercase small text-muted">Seller Rating</h6>
+                <h2 class="display-6 fw-bold text-warning">
+                    {% if avg_score > 0 %}
+                        {{ avg_score }} <span class="fs-4">⭐</span>
+                    {% else %}
+                        N/A
+                    {% endif %}
+                </h2>
+                <small class="text-muted">{{ feedback_count }} Verified Reviews</small>
+            </div>
+        </div>
+    </div>
+
+    <div class="card shadow border-0 mb-5">
+        <div class="card-header bg-white d-flex justify-content-between align-items-center py-3">
+            <h5 class="mb-0 fw-bold text-dark">My Device Inventory</h5>
+            <a href="{% url 'post_phone_ad' %}" class="btn btn-primary btn-sm px-3 shadow-sm">
+                <i class="bi bi-plus-lg"></i> + Add New Phone
+            </a>
+        </div>
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th class="ps-4">Preview</th>
+                        <th>Device Model</th>
+                        <th>Ask Price</th>
+                        <th>Test Status</th>
+                        <th class="text-center">Action / Report</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for listing in listings %}
+                    <tr>
+                        <td class="ps-4">
+                            {% if listing.image %}
+                                <img src="{{ listing.image.url }}" alt="Phone" class="rounded border" style="width: 50px; height: 50px; object-fit: contain;">
+                            {% else %}
+                                <div class="rounded border bg-light text-center text-muted" style="width: 50px; height: 50px; line-height: 50px;">No Image</div>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <span class="text-dark fw-bold">{{ listing.brand }}</span> {{ listing.model_name }}
+                            <br><small class="text-muted">IMEI: {{ listing.imei_number|truncatechars:7 }}***</small>
+                        </td>
+                        <td>
+                            <span class="text-dark">₹{{ listing.price }}</span>
+                            {% if listing.test_report %}
+                                <br><small class="text-success fw-bold">Valuation: ₹{{ listing.test_report.valuation_price }}</small>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if listing.is_verified %}
+                                <span class="badge bg-success rounded-pill px-3">Passed & Live</span>
+                            {% elif listing.test_report and not listing.test_report.is_passed %}
+                                <span class="badge bg-danger rounded-pill px-3">Failed Test</span>
+                            {% else %}
+                                <span class="badge bg-warning text-dark rounded-pill px-3">Awaiting Diagnostic</span>
+                            {% endif %}
+                        </td>
+                        <td class="text-center">
+                            {% if listing.test_report %}
+                                <button type="button" class="btn btn-sm btn-outline-info px-3" data-bs-toggle="modal" data-bs-target="#report{{ listing.id }}">
+                                    View Report
+                                </button>
+                                {% else %}
+                                <small class="text-muted"><i class="bi bi-geo-alt"></i> Visit Surat Center</small>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="5" class="text-center py-5">
+                            <p class="text-muted mb-0">No listings found. Start by adding your first phone!</p>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-12">
+            <div class="card shadow border-0">
+                <div class="card-header bg-white py-3">
+                    <h5 class="mb-0 fw-bold text-dark">Recent Customer Reviews</h5>
+                </div>
+               <div class="card bg-white text-dark p-3 shadow-sm border-0">
+                    <h6 class="text-uppercase small text-muted">Seller Rating</h6>
+                    <h2 class="display-6 fw-bold text-warning">
+                        {% if feedback_count > 0 %}
+                            {{ avg_score }} <span class="fs-4">⭐</span>
+                        {% else %}
+                            <span class="text-muted fs-5">No Ratings</span>
+                        {% endif %}
+                    </h2>
+                    <small class="text-muted">{{ feedback_count }} Verified Reviews</small>
+                </div>
+                    
+                 
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -58,7 +58,7 @@ ROOT_URLCONF = 'phonebazar.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': ['templates'],
+        'DIRS': ['templates',],  # Add your template directories here
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -130,6 +130,8 @@ STATICFILES_DIRS = [
 ]
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+
+
 
 #email configuration
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'

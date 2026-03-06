@@ -1,0 +1,47 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="container mt-5">
+    <div class="row">
+        <div class="col-md-6 text-center">
+            {% if phone.image %}
+                <img src="{{ phone.image.url }}" class="img-fluid rounded shadow-sm" style="max-height: 500px;">
+            {% endif %}
+        </div>
+
+        <div class="col-md-6">
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="{% url 'marketplace_home' %}">Marketplace</a></li>
+                    <li class="breadcrumb-item active">{{ phone.brand }}</li>
+                </ol>
+            </nav>
+            
+            <h1 class="fw-bold">{{ phone.brand }} {{ phone.model_name }}</h1>
+            <h2 class="text-primary mb-4">₹{{ phone.price }}</h2>
+
+            <div class="card border-primary mb-4">
+                <div class="card-header bg-primary text-white">
+                    <i class="bi bi-shield-check"></i> PhoneBazar Certified Report
+                </div>
+                <div class="card-body">
+                    {% if phone.test_report %}
+                        <p class="mb-1"><strong>Condition:</strong> {{ phone.test_report.functional_status }}</p>
+                        <p class="mb-0"><strong>Verified Valuation:</strong> ₹{{ phone.test_report.valuation_price }}</p>
+                        <hr>
+                        <span class="badge bg-success">Passed All Tests</span>
+                    {% else %}
+                        <p class="text-muted italic">Diagnostic details pending for this device.</p>
+                    {% endif %}
+                </div>
+            </div>
+
+            <p class="text-muted">{{ phone.description }}</p>
+
+            <div class="d-grid gap-2">
+                <a href="{% url 'create_order' phone.id %}" class="btn btn-primary btn-lg">Buy Now</a>
+                <a href="{% url 'marketplace_home' %}" class="btn btn-outline-secondary">Back to Gallery</a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

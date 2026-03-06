@@ -1,10 +1,30 @@
-<div class="sidebar buyer-theme">
-    <h4 style="color: #2eaf7d;">Buyer Menu</h4>
-    <ul>
-        <li><a href="{% url 'Buyer_dashboard' %}">🛍️ My Orders</a></li>
-        <li><a href="#">❤️ Wishlist</a></li>
-        <li><a href="#">🛒 My Cart</a></li>
-        <li><a href="#">📍 Saved Addresses</a></li>
-        <li><a href="#">💬 Support Chat</a></li>
+<div class="sidebar buyer-theme p-3 bg-white shadow-sm vh-100" style="width: 250px;">
+    <h4 class="fw-bold mb-4" style="color: #2eaf7d;">Buyer Menu</h4>
+    <ul class="nav flex-column">
+        <li class="nav-item mb-2">
+            <a href="{% url 'buyer_dashboard' %}" class="nav-link text-dark">
+                🛍️ <span class="ms-2">My Orders</span>
+            </a>
+        </li>
+        <li class="nav-item mb-2">
+            <a href="{% url 'wishlist' %}" class="nav-link text-dark">
+                ❤️ <span class="ms-2">Wishlist</span>
+            </a>
+        </li>
+        <li class="nav-item mb-2">
+            <a href="{% url 'view_cart' %}" class="nav-link text-dark">
+                🛒 <span class="ms-2">My Cart</span>
+            </a>
+        </li>
+        <li class="nav-item mb-2">
+            <a href="{% url 'saved_addresses' %}" class="nav-link text-dark">
+                📍 <span class="ms-2">Saved Addresses</span>
+            </a>
+        </li>
+        <li class="nav-item mb-2">
+            <a href="{% url 'support_chat' %}" class="nav-link text-dark">
+                💬 <span class="ms-2">Support Chat</span>
+            </a>
+        </li>
     </ul>
 </div>

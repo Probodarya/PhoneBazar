@@ -1,6 +1,7 @@
 from django.db import models
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager
 from django.conf import settings
+import uuid
 
 class UserManager(BaseUserManager):
     def create_user(self, email, password=None, **extra_fields):
@@ -82,13 +83,29 @@ class PhoneListing(models.Model):
         return f"{self.brand} {self.model_name}"
 
 class TestReport(models.Model):
-    listing = models.OneToOneField(PhoneListing, on_delete=models.CASCADE)
-    tester = models.ForeignKey(settings.AUTH_USER_MODEL, limit_choices_to={'is_staff': True}, on_delete=models.SET_NULL, null=True)
-    functional_status = models.TextField(help_text="Results of battery, screen, and hardware tests")
-    valuation_price = models.DecimalField(max_digits=10, decimal_places=2, help_text="Suggested market price")
+    # Using 'PhoneListing' as a string prevents ImportErrors
+    listing = models.OneToOneField(
+        'PhoneListing', 
+        on_delete=models.CASCADE, 
+        related_name='test_report'
+    )
+    tester = models.ForeignKey(
+        settings.AUTH_USER_MODEL, 
+        limit_choices_to={'is_staff': True}, 
+        on_delete=models.SET_NULL, 
+        null=True
+    )
+    functional_status = models.TextField()
+    valuation_price = models.DecimalField(max_digits=10, decimal_places=2)
     is_passed = models.BooleanField(default=False)
     report_date = models.DateTimeField(auto_now_add=True)
 
+    def save(self, *args, **kwargs):
+        # We use self.listing because Django resolves the string automatically
+        if self.is_passed:
+            self.listing.is_verified = True
+            self.listing.save()
+        super().save(*args, **kwargs)
 class Order(models.Model):
     STATUS_CHOICES = (
         ('pending_test', 'Pending Functional Test'),
@@ -98,15 +115,24 @@ class Order(models.Model):
         ('completed', 'Transaction Finalized'),
         ('disputed', 'Under Dispute'),
     )
-    buyer = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='purchases')
-    phone_listing = models.ForeignKey(PhoneListing, on_delete=models.PROTECT)
+    
+    buyer = models.ForeignKey(
+        settings.AUTH_USER_MODEL, 
+        on_delete=models.CASCADE, 
+        related_name='purchases'
+    )
+    # PROTECT ensures we don't accidentally delete a listing that has a paid order
+    phone_listing = models.ForeignKey('PhoneListing', on_delete=models.PROTECT)
     total_price = models.DecimalField(max_digits=10, decimal_places=2)
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='pending_test')
     tracking_number = models.CharField(max_length=100, blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
-        return f"Order #{self.id} - {self.phone_listing.model_name}"
+        return f"Order #{self.id} - {self.phone_listing.model_name} ({self.get_status_display()})"
+
+    class Meta:
+        ordering = ['-created_at']
 
 class Transaction(models.Model):
     STATUS_CHOICES = (
@@ -115,22 +141,50 @@ class Transaction(models.Model):
         ('completed', 'Finalized'),
         ('refunded', 'Refunded'),
     )
-    listing = models.ForeignKey(PhoneListing, on_delete=models.PROTECT)
-    buyer = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='transactions')
+    listing = models.ForeignKey('PhoneListing', on_delete=models.PROTECT)
+    buyer = models.ForeignKey(
+        settings.AUTH_USER_MODEL, 
+        on_delete=models.CASCADE, 
+        related_name='transactions'
+    )
     amount = models.DecimalField(max_digits=10, decimal_places=2)
     status = models.CharField(max_length=10, choices=STATUS_CHOICES, default='pending')
     transaction_id = models.CharField(max_length=100, unique=True)
+    created_at = models.DateTimeField(auto_now_add=True, db_index=True,null=True)
+
+    def __str__(self):
+        return f"TXN-{self.transaction_id} ({self.status})"
+
+    def save(self, *args, **kwargs):
+        if not self.transaction_id:
+            # Generate a unique ID like PB-UUID
+            self.transaction_id = f"PB-{uuid.uuid4().hex[:10].upper()}"
+        super().save(*args, **kwargs)
 
 class Feedback(models.Model):
     RATING_CHOICES = [(i, str(i)) for i in range(1, 6)]
-    order = models.OneToOneField(Order, on_delete=models.CASCADE, related_name='feedback')
+    order = models.OneToOneField('Order', on_delete=models.CASCADE, related_name='feedback')
     buyer = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     seller = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='received_feedback')
+    
     phone_condition_rating = models.IntegerField(choices=RATING_CHOICES)
     communication_rating = models.IntegerField(choices=RATING_CHOICES)
     shipping_rating = models.IntegerField(choices=RATING_CHOICES)
+    
     comment = models.TextField(blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        # Using get_username() is safer than .username
+        seller_name = self.seller.get_username() if self.seller else "Unknown Seller"
+        order_id = self.order.id if self.order else "N/A"
+        
+        return f"Feedback for {seller_name} - Order #{order_id}"
+
+    @property
+    def average_rating(self):
+        # Calculates the overall score for this transaction
+        return round((self.phone_condition_rating + self.communication_rating + self.shipping_rating) / 3, 1)
 
 
 

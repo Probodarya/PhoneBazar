@@ -68,3 +68,28 @@ class EditProfileForm(forms.ModelForm):
             'phone': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'mobile_number'}),
 
         }
+
+# date 4/3/2026 working on post ad form
+class PhoneListingForm(forms.ModelForm):
+    class Meta:
+        model = PhoneListing
+        # We include all fields the seller needs to fill out
+        fields = ['brand', 'model_name', 'imei_number', 'price', 'description', 'image']
+        widgets = {
+            'description': forms.Textarea(attrs={'class': 'form-control', 'rows': 4, 'placeholder': 'Describe the phone condition...'}),
+            'brand': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'e.g., Apple, Samsung'}),
+            'model_name': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'e.g., iPhone 15 Pro'}),
+            'imei_number': forms.TextInput(attrs={'class': 'form-control', 'placeholder': '15-digit IMEI number'}),
+            'price': forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'Set your price'}),
+            'image': forms.ClearableFileInput(attrs={'class': 'form-control'}),
+        }
+from django import forms
+from .models import Feedback
+
+class FeedbackForm(forms.ModelForm):
+    class Meta:
+        model = Feedback
+        fields = ['phone_condition_rating', 'communication_rating', 'shipping_rating', 'comment']
+        widgets = {
+            'comment': forms.Textarea(attrs={'rows': 3, 'placeholder': 'How was your experience?'}),
+        }

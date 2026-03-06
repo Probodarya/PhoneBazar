@@ -1,0 +1,39 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="container mt-5 text-center">
+    <div class="card p-5 shadow-sm border-0 mx-auto" style="max-width: 500px;">
+        <h4 class="fw-bold">Secure Checkout</h4>
+        <p class="text-muted">You are purchasing: <strong>{{ phone.brand }} {{ phone.model_name }}</strong></p>
+        <hr>
+        <h2 class="text-primary mb-4">Total: ₹{{ phone.price }}</h2>
+        
+        <button id="pay-btn" class="btn btn-success btn-lg w-100">Pay via Razorpay / UPI</button>
+    </div>
+</div>
+
+<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+<script>
+    var options = {
+        "key": "{{ razorpay_key }}",
+        "amount": "{{ amount }}",
+        "currency": "INR",
+        "name": "PhoneBazar",
+        "description": "Payment for {{ phone.model_name }}",
+        "order_id": "{{ razorpay_order_id }}",
+        "handler": function (response){
+            // Redirect to a success view after payment
+            window.location.href = "/payment-success/?order_id={{ order.id }}&payment_id=" + response.razorpay_payment_id;
+        },
+        "prefill": {
+            "name": "{{ request.user.username }}",
+            "email": "{{ request.user.email }}"
+        },
+        "theme": { "color": "#0d6efd" }
+    };
+    var rzp1 = new Razorpay(options);
+    document.getElementById('pay-btn').onclick = function(e){
+        rzp1.open();
+        e.preventDefault();
+    }
+</script>
+{% endblock %}

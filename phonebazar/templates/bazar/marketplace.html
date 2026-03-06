@@ -1,0 +1,37 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="container mt-4">
+    <h2 class="mb-4">Verified Devices in Surat</h2>
+    <div class="row">
+        <p class="small text-muted">
+    Seller Rating: 
+    {% if phone.seller.received_feedback.exists %}
+        {{ phone.seller.received_feedback.all|length }} reviews
+    {% else %}
+        New Seller
+    {% endif %}
+</p>
+        {% for phone in phones %}
+        <div class="col-md-4 mb-4">
+            <div class="card h-100 shadow-sm border-0">
+                {% if phone.image %}
+                    <img src="{{ phone.image.url }}" class="card-img-top" alt="phone" style="height: 200px; object-fit: contain;">
+                {% endif %}
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <h5 class="card-title">{{ phone.brand }} {{ phone.model_name }}</h5>
+                        <span class="text-primary fw-bold">₹{{ phone.price }}</span>
+                    </div>
+                    <p class="text-muted small">Tested & Certified by PhoneBazar</p>
+                    <a href="{% url 'phone_detail' phone.id %}" class="btn btn-outline-primary w-100">View Details</a>
+                </div>
+            </div>
+        </div>
+        {% empty %}
+        <div class="col-12 text-center py-5">
+            <p class="text-muted">No verified phones available right now. Check back soon!</p>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}  
