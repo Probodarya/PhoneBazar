@@ -1,9 +1,9 @@
 <div class="role-nav retailer-theme">
     <div class="nav-links">
         <a href="{% url 'Retailer_dashboard' %}">📊 Store Insights</a>
-        <a href="#">📦 Bulk Inventory</a>
-        <a href="#">👥 Customer Leads</a>
-        <a href="#">📈 Sales Reports</a>
-        <a href="#" class="btn-retailer">Manage Shop</a>
+        <a href="{% url 'bulk_upload' %}">📦 Bulk Inventory</a>
+        <a href="{% url 'customer_leads' %}">👥 Customer Leads</a>
+        <a href="{% url 'sales_reports' %}">📈 Sales Reports</a>
+        <a href="{% url 'manage_shop' %}" class="btn-retailer">Manage Shop</a>
     </div>
 </div>

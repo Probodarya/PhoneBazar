@@ -78,3 +78,29 @@ class FeedbackAdmin(admin.ModelAdmin):
     
     # 4. Add Date Hierarchy (The horizontal date bar at the top)
     date_hierarchy = 'created_at'
+
+from django.contrib import admin
+from .models import SupportMessage, Address
+
+@admin.register(SupportMessage)
+class SupportMessageAdmin(admin.ModelAdmin):
+    # This shows these columns in the admin list view
+    list_display = ('user', 'message', 'is_from_support', 'timestamp')
+    # This adds a filter sidebar on the right
+    list_filter = ('is_from_support', 'timestamp')
+    # This adds a search bar to find messages by user email or text
+    search_fields = ('user__email', 'message')
+
+@admin.register(Address)
+class AddressAdmin(admin.ModelAdmin):
+    list_display = ('user', 'full_name', 'city', 'pincode', 'is_default')
+    list_filter = ('city', 'is_default')
+    search_fields = ('full_name', 'user__email', 'pincode')
+    
+from django.contrib import admin
+from .models import Wishlist
+
+@admin.register(Wishlist)
+class WishlistAdmin(admin.ModelAdmin):
+    list_display = ('user', 'phone_listing', 'created_at')
+    list_filter = ('created_at',)

@@ -2,6 +2,7 @@ import django
 from django.shortcuts import render,redirect,HttpResponse
 from django.core.mail import send_mail
 from django.conf import settings
+from urllib3 import request
 from .forms import UserSignupForm,UserLoginForm
 from django.contrib.auth import authenticate,login
 from django.core.mail import EmailMultiAlternatives
@@ -14,7 +15,7 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from .forms import PhoneListingForm
 from django.shortcuts import render, redirect, get_object_or_404
-from .models import PhoneListing, Order, Transaction, TestReport
+from .models import Feedback, PhoneListing, Order, Transaction, TestReport
 def userSignupView(request):
     if request.method == "POST":
         form = UserSignupForm(request.POST or None)
@@ -128,34 +129,49 @@ def post_phone_ad(request):
             return redirect('post_ad_success')
     else:
         form = PhoneListingForm()
-        return render(request, 'core/post_ad.html', {'form': form})
+    
+    return render(request, 'core/post_ad.html', {'form': form})
 @login_required
 def post_ad_success(request):
     """View to handle the success page after redirect."""
     return render(request, 'core/post_ad_success.html')
-    
+        
     return render(request, 'core/post_ad.html', {'form': form})
+
 from django.shortcuts import render
 from django.contrib.auth.decorators import login_required
-from .models import PhoneListing, Transaction
-
+from .models import PhoneListing, Feedback
+from django.db.models import Avg
 @login_required
 def seller_dashboard(request):
-    # TEMPORARY: Get ALL listings to see if anything shows up
-    # If this works, the problem is with the 'seller' assignment
-    my_listings = PhoneListing.objects.all()
+    # 1. Fetch listings for the CURRENT user
+    listings_list = PhoneListing.objects.filter(seller=request.user)
     
+    # 2. Fetch feedback for the CURRENT user
+    reviews_list = request.user.received_feedback.all()
+    
+    # 3. Calculate Average Rating
+    avg_score = reviews_list.aggregate(Avg('phone_condition_rating'))['phone_condition_rating__avg'] or 0
+    
+    # Debugging: Check your VS Code terminal to see if these numbers are > 0
+    print(f"--- DEBUG: User {request.user.email} ---")
+    print(f"Listings: {listings_list.count()} | Reviews: {reviews_list.count()}")
+
     stats = {
-        'total': my_listings.count(),
-        'verified': my_listings.filter(is_verified=True).count(),
-        'pending': my_listings.filter(is_verified=False).count(),
+        'total': listings_list.count(),
+        'verified': listings_list.filter(is_verified=True).count(),
+        'pending': listings_list.filter(is_verified=False).count(),
+    }
+
+    context = {
+        'listings': listings_list,  # Use 'listings' to match your {% for listing in listings %}
+        'reviews': reviews_list.order_by('-created_at'),
+        'avg_score': round(float(avg_score), 1),
+        'feedback_count': reviews_list.count(),
+        'stats': stats,
     }
     
-    return render(request, 'bazar/seller/seller_dashboard.html', {
-        'listings': my_listings,
-        'stats': stats
-    })
-
+    return render(request, 'bazar/seller/seller_dashboard.html', context)
 #5-2-2026 work
 from django.contrib import messages
 from django.shortcuts import redirect, get_object_or_404
@@ -315,36 +331,53 @@ def leave_feedback(request, order_id):
         form = FeedbackForm()
     
     return render(request, 'bazar/leave_feedback.html', {'form': form, 'order': order})
+
+
+from django.shortcuts import render
+from django.contrib.auth.decorators import login_required
+from .models import PhoneListing, Order
+from django.db.models import Avg, Sum
+from django.shortcuts import render
+from django.contrib.auth.decorators import login_required
+from .models import PhoneListing, Feedback, Order
 from django.db.models import Avg
+from .models import PhoneListing, Feedback
 
 @login_required
-def seller_dashboard(request):
-    listings = PhoneListing.objects.filter(seller=request.user)
+def retailer_dashboard(request):
+    # TRICK: Let's check if there are ANY phones in the DB first
+    all_phones_in_db = PhoneListing.objects.all().count()
     
-    # 1. Get all reviews for this seller
-    all_reviews = Feedback.objects.filter(seller=request.user)
+    # Now get only the ones for this user
+    # We use .filter(seller_id=request.user.id) to be 100% specific
+    listings = PhoneListing.objects.filter(seller_id=request.user.id)
     
-    # 2. Calculate the average score
-    # We use .aggregate to get the mean of the condition rating
-    rating_data = all_reviews.aggregate(Avg('phone_condition_rating'))
-    avg_score = rating_data['phone_condition_rating__avg'] or 0
+    # Get reviews specifically for this seller
+    reviews = Feedback.objects.filter(seller_id=request.user.id)
     
-    # 3. Round to 1 decimal place (e.g., 4.5)
-    avg_score = round(avg_score, 1)
+    # Stats calculation
+    avg_score = reviews.aggregate(Avg('phone_condition_rating'))['phone_condition_rating__avg'] or 0
 
-    stats = {
-        'total': listings.count(),
-        'verified': listings.filter(is_verified=True).count(),
-        'pending': listings.filter(is_verified=False).count(),
-    }
+    # PRINT TO YOUR TERMINAL (Check VS Code bottom window)
+    print(f"--- DEBUG START ---")
+    print(f"Logged in User ID: {request.user.id}")
+    print(f"Logged in Email: {request.user.email}")
+    print(f"Total Phones in System: {all_phones_in_db}")
+    print(f"Phones for THIS User: {listings.count()}")
+    print(f"--- DEBUG END ---")
 
-    return render(request, 'bazar/seller_dashboard.html', {
+    context = {
         'listings': listings,
-        'stats': stats,
-        'avg_score': avg_score,      # <--- Make sure this is sent!
-        'reviews': all_reviews[:5],  # <--- Send the last 5 reviews
-        'feedback_count': all_reviews.count()
-    })
+        'reviews': reviews,
+        'avg_score': round(float(avg_score), 1),
+        'feedback_count': reviews.count(),
+        'stats': {
+            'total': listings.count(),
+            'verified': listings.filter(is_verified=True).count(),
+        }
+    }
+    return render(request, 'bazar/retailer_dashboard.html', context)
+
 #buyer navbar
 from django.shortcuts import render
 from django.contrib.auth.decorators import login_required
@@ -354,15 +387,354 @@ def wishlist(request):
     # Logic to fetch user's wishlist items
     return render(request, 'bazar/wishlist.html')
 
+from django.shortcuts import render, get_object_or_404, redirect
+from django.contrib.auth.decorators import login_required
+from .models import PhoneListing 
+
+from django.shortcuts import get_object_or_404, redirect
+from django.contrib import messages
+from .models import PhoneListing, Wishlist
+
+@login_required
+def add_to_wishlist(request, phone_id):
+    phone = get_object_or_404(PhoneListing, id=phone_id)
+    
+    # Check if already in wishlist to avoid Duplicate entry error
+    wishlist_item, created = Wishlist.objects.get_or_create(
+        user=request.user, 
+        phone_listing=phone
+    )
+    
+    if created:
+        messages.success(request, f"{phone.model_name} added to your wishlist!")
+    else:
+        messages.info(request, "This item is already in your wishlist.")
+        
+    return redirect('phone_detail', phone_id=phone.id)
+def phone_detail(request, pk): # Changed from phone_id to pk
+    phone = get_object_or_404(PhoneListing, id=pk)
+    return render(request, 'bazar/phone_detail.html', {'phone': phone})
+from django.shortcuts import render
+from django.contrib.auth.decorators import login_required
+from .models import Wishlist
+
+@login_required
+def view_wishlist(request):
+    # Fetch all items saved by the current user
+    wishlist_items = Wishlist.objects.filter(user=request.user).select_related('phone_listing')
+    
+    return render(request, 'bazar/buyer/wishlist.html', {
+        'wishlist_items': wishlist_items
+    })
+@login_required
+def remove_from_wishlist(request, item_id):
+    wishlist_item = get_object_or_404(Wishlist, id=item_id, user=request.user)
+    wishlist_item.delete()
+    messages.info(request, "Item removed from your wishlist.")
+    return redirect('view_wishlist')
+
 @login_required
 def view_cart(request):
-    # Logic to fetch items in the user's cart
-    return render(request, 'bazar/cart.html')
+    # Retrieve cart items from session or database
+    cart = request.session.get('cart', {})
+    cart_items = []
+    total_price = 0
+
+    for phone_id, quantity in cart.items():
+        phone = get_object_or_404(PhoneListing, id=phone_id)
+        item_total = phone.price * quantity
+        total_price += item_total
+        cart_items.append({
+            'phone': phone,
+            'quantity': quantity,
+            'item_total': item_total
+        })
+
+    return render(request, 'bazar/buyer/cart.html', {
+        'cart_items': cart_items,
+        'total_price': total_price
+    })
+from django.shortcuts import get_object_or_404, redirect
+from django.contrib import messages
+from .models import PhoneListing
+
+def add_to_cart(request, phone_id):
+    # 1. Get the phone or return 404 if not found
+    phone = get_object_or_404(PhoneListing, id=phone_id)
+    
+    # 2. Get the current cart from session (or an empty dict if it doesn't exist)
+    cart = request.session.get('cart', {})
+    
+    # 3. Add the phone ID to the cart
+    # We use string keys because session JSON doesn't support integer keys well
+    phone_id_str = str(phone_id)
+    if phone_id_str in cart:
+        cart[phone_id_str] += 1
+    else:
+        cart[phone_id_str] = 1
+        
+    # 4. Save the cart back to the session
+    request.session['cart'] = cart
+    messages.success(request, f"{phone.brand} {phone.model_name} added to cart!")
+    
+    # 5. Redirect back to the marketplace or the cart page
+    return redirect('view_cart')
+from django.shortcuts import render, redirect
+from django.contrib import messages
+from .models import PhoneListing, Order, Address
+
+@login_required
+def place_order(request):
+    cart = request.session.get('cart', {})
+    
+    if not cart:
+        messages.error(request, "Your cart is empty!")
+        return redirect('buyer_dashboard')
+
+    # Get the user's default address for the order
+    address = Address.objects.filter(user=request.user, is_default=True).first()
+    if not address:
+        messages.warning(request, "Please set a default address before placing an order.")
+        return redirect('saved_addresses')
+
+    # Create Order records
+    for phone_id, quantity in cart.items():
+        phone = PhoneListing.objects.get(id=phone_id)
+        
+        Order.objects.create(
+            buyer=request.user,
+            phone_listing=phone,
+            address=address,
+            total_price=phone.price * quantity,
+            status='pending' # Initial status for the seller to see
+        )
+        
+    # Clear the cart after successful order placement
+    request.session['cart'] = {}
+    request.session.modified = True
+    
+    messages.success(request, "Order placed successfully! Sellers in Surat have been notified.")
+    return redirect('buyer_dashboard')
+from django.shortcuts import render, redirect
+from django.contrib.auth.decorators import login_required
+from .models import Address  # Assuming you have an Address model
 
 @login_required
 def saved_addresses(request):
-    return render(request, 'bazar/addresses.html')
+    addresses = Address.objects.filter(user=request.user).order_by('-is_default')
+
+    if request.method == 'POST':
+        # Get form data
+        is_default = request.POST.get('is_default') == 'on'
+        
+        # If this new address is set to default, reset others
+        if is_default:
+            Address.objects.filter(user=request.user).update(is_default=False)
+        
+        Address.objects.create(
+            user=request.user,
+            full_name=request.POST.get('full_name'),
+            phone_number=request.POST.get('phone_number'),
+            address_line=request.POST.get('address_line'),
+            city=request.POST.get('city'),
+            pincode=request.POST.get('pincode'),
+            is_default=is_default
+        )
+        return redirect('saved_addresses')
+
+    return render(request, 'bazar/buyer/saved_addresses.html', {'addresses': addresses})
+from django.shortcuts import get_object_or_404, redirect
+from .models import Address
+
+@login_required
+def set_default_address(request, address_id):
+    if request.method == 'POST':
+        # 1. Unset all current default addresses for this user
+        Address.objects.filter(user=request.user).update(is_default=False)
+        
+        # 2. Set the selected address as the new default
+        address = get_object_or_404(Address, id=address_id, user=request.user)
+        address.is_default = True
+        address.save()
+        
+    return redirect('saved_addresses')
+from django.shortcuts import render, redirect
+from django.contrib.auth.decorators import login_required
+from .models import SupportMessage # Assuming you have a message model
 
 @login_required
 def support_chat(request):
-    return render(request, 'bazar/support.html')
+    # Fetch messages between the user and support
+    messages = SupportMessage.objects.filter(user=request.user).order_by('timestamp')
+
+    if request.method == 'POST':
+        text = request.POST.get('message')
+        if text:
+            SupportMessage.objects.create(
+                user=request.user,
+                message=text,
+                is_from_support=False
+            )
+            return redirect('support_chat')
+
+    return render(request, 'bazar/buyer/support_chat.html', {
+        'chat_messages': messages
+    })
+
+# sellernavbar
+from django.db.models import Sum
+from django.shortcuts import render
+from django.contrib.auth.decorators import login_required
+from .models import Order
+
+@login_required
+def my_earnings(request):
+    # 1. Fetch all completed orders for this seller's phones
+    # Assuming Order model has a foreign key to PhoneListing
+    sales = Order.objects.filter(
+        phone_listing__seller=request.user, 
+        status='completed'
+    ).order_by('-created_at')
+    
+    # 2. Calculate Total Revenue
+    total_revenue = sales.aggregate(Sum('total_price'))['total_price__sum'] or 0
+    
+    # 3. Calculate Earnings for the current month
+    from django.utils import timezone
+    current_month = timezone.now().month
+    monthly_revenue = sales.filter(
+        created_at__month=current_month
+    ).aggregate(Sum('total_price'))['total_price__sum'] or 0
+
+    context = {
+        'sales': sales,
+        'total_revenue': total_revenue,
+        'monthly_revenue': monthly_revenue,
+        'sales_count': sales.count(),
+    }
+    
+    return render(request, 'bazar/seller/my_earnings.html', context)
+
+from django.db.models import Avg, Count
+
+@login_required
+def seller_rating_view(request):
+    # Get all reviews using the related_name defined in your models
+    reviews = request.user.received_feedback.all().order_by('-created_at')
+    
+    # Calculate Average
+    stats = reviews.aggregate(
+        avg=Avg('phone_condition_rating'),
+        count=Count('id')
+    )
+    
+    # Calculate star percentage breakdown for the progress bars
+    star_counts = []
+    for i in range(5, 0, -1):
+        count = reviews.filter(phone_condition_rating=i).count()
+        percentage = (count / stats['count'] * 100) if stats['count'] > 0 else 0
+        star_counts.append({'stars': i, 'count': count, 'percent': percentage})
+
+    return render(request, 'bazar/seller/seller_rating.html', {
+        'reviews': reviews,
+        'avg_score': round(stats['avg'] or 0, 1),
+        'total_reviews': stats['count'],
+        'star_counts': star_counts
+    })
+#retailer navbar
+import csv
+import io
+from django.shortcuts import render, redirect
+from django.contrib import messages
+from .models import PhoneListing
+
+@login_required
+def bulk_upload_inventory(request):
+    if request.method == "POST":
+        csv_file = request.FILES.get('file')
+        
+        # 1. Basic Validation
+        if not csv_file.name.endswith('.csv'):
+            messages.error(request, 'Please upload a CSV file.')
+            return redirect('bulk_upload')
+
+        # 2. Process the File
+        data_set = csv_file.read().decode('UTF-8')
+        io_string = io.StringIO(data_set)
+        next(io_string) # Skip the header row
+        
+        count = 0
+        for row in csv.reader(io_string, delimiter=',', quotechar="|"):
+            _, created = PhoneListing.objects.update_or_create(
+                seller=request.user,
+                brand=row[0],
+                model_name=row[1],
+                price=row[2],
+                imei_number=row[3],
+                description=row[4]
+            )
+            count += 1
+        
+        messages.success(request, f"Successfully imported {count} phones to your inventory.")
+        return redirect('retailer_dashboard')
+
+    return render(request, 'bazar/retailer/bulk_upload.html')
+from django.shortcuts import render
+from django.contrib.auth.decorators import login_required
+from .models import Wishlist, PhoneListing
+
+@login_required
+def customer_leads(request):
+    # 1. Fetch all wishlist entries for phones owned by this retailer
+    leads = Wishlist.objects.filter(
+        phone_listing__seller=request.user
+    ).select_related('user', 'phone_listing').order_by('-created_at')
+
+    # 2. Group leads by phone model to see which devices are most popular
+    hot_leads = PhoneListing.objects.filter(
+        seller=request.user
+    ).annotate(wishlist_count=Count('wishlisted_by')).order_by('-wishlist_count')[:5] # Fixed the typo here
+
+    return render(request, 'bazar/retailer/customer_leads.html', {
+        'leads': leads,
+        'hot_leads': hot_leads
+    })
+from django.db.models import Sum, Avg, Count
+from .models import Order
+
+@login_required
+def sales_report(request):
+    # Fetch all completed orders for this retailer's listings
+    completed_sales = Order.objects.filter(
+        phone_listing__seller=request.user, 
+        status='completed'
+    ).order_by('-created_at')
+
+    # Financial Aggregations
+    total_revenue = completed_sales.aggregate(Sum('total_price'))['total_price__sum'] or 0
+    avg_order_value = completed_sales.aggregate(Avg('total_price'))['total_price__avg'] or 0
+    total_units_sold = completed_sales.count()
+
+    context = {
+        'sales': completed_sales,
+        'total_revenue': total_revenue,
+        'avg_order_value': round(avg_order_value, 2),
+        'total_units_sold': total_units_sold,
+    }
+    return render(request, 'bazar/retailer/sales_report.html', context)
+from .models import StoreProfile
+@login_required
+def manage_shop(request):
+    # Get or create a blank profile for the retailer
+    store, created = StoreProfile.objects.get_or_create(user=request.user)
+
+    if request.method == "POST":
+        store.store_name = request.POST.get('store_name')
+        store.gst_number = request.POST.get('gst_number')
+        store.store_address = request.POST.get('store_address')
+        store.contact_number = request.POST.get('contact_number')
+        store.save()
+        messages.success(request, "Shop details updated successfully!")
+        return redirect('manage_shop')
+
+    return render(request, 'bazar/retailer/manage_shop.html', {'store': store})

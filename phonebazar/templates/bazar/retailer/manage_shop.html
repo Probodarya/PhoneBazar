@@ -1,0 +1,61 @@
+{% extends 'base.html' %}
+{% block content %}
+
+
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-md-4">
+            <div class="card border-0 shadow-sm rounded-4 p-4 text-center mb-4">
+                <div class="rounded-circle bg-light d-flex align-items-center justify-content-center mx-auto mb-3" style="width: 80px; height: 80px;">
+                    <i class="bi bi-shop-window fs-1 text-primary"></i>
+                </div>
+                <h5 class="fw-bold">{{ store.store_name|default:"Your Shop Name" }}</h5>
+                <p class="text-muted small">ID: #RE-{{ store.id|default:"000" }}</p>
+                <hr>
+                <div class="d-flex justify-content-between small mb-2">
+                    <span>Listing Limit:</span>
+                    <span class="fw-bold text-success">Unlimited</span>
+                </div>
+                <div class="d-flex justify-content-between small">
+                    <span>Account Status:</span>
+                    <span class="badge bg-success-subtle text-success">Verified</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-8">
+            <div class="card border-0 shadow-sm rounded-4 p-4">
+                <h4 class="fw-bold mb-4">Shop <span style="color: #3f51b5;">Settings</span></h4>
+                
+                <form method="POST">
+                    {% csrf_token %}
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label class="form-label small fw-bold">Business Name</label>
+                            <input type="text" name="store_name" value="{{ store.store_name }}" class="form-control bg-light border-0" placeholder="e.g. Surat Mobile Hub" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label small fw-bold">GST Number (Optional)</label>
+                            <input type="text" name="gst_number" value="{{ store.gst_number }}" class="form-control bg-light border-0" placeholder="24AAAAA0000A1Z5">
+                        </div>
+                        <div class="col-md-12">
+                            <label class="form-label small fw-bold">Store Address</label>
+                            <textarea name="store_address" class="form-control bg-light border-0" rows="3" required>{{ store.store_address }}</textarea>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label small fw-bold">Support Contact Number</label>
+                            <input type="text" name="contact_number" value="{{ store.contact_number }}" class="form-control bg-light border-0" required>
+                        </div>
+                    </div>
+
+                    <div class="mt-4 pt-3 border-top">
+                        <button type="submit" class="btn btn-primary rounded-pill px-5 fw-bold" style="background-color: #3f51b5;">
+                            SAVE CHANGES
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

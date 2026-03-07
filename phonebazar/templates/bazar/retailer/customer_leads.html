@@ -1,0 +1,64 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="fw-bold text-dark">Customer <span style="color: #3f51b5;">Leads</span></h2>
+        <span class="badge bg-primary rounded-pill px-3">{{ leads.count }} Active Leads</span>
+    </div>
+
+    <div class="row g-4">
+        <div class="col-md-4">
+            <div class="card border-0 shadow-sm rounded-4 p-4 bg-white">
+                <h6 class="fw-bold mb-3"><i class="bi bi-fire text-danger"></i> Most Wishlisted</h6>
+                {% for hot in hot_leads %}
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <small class="text-dark fw-bold">{{ hot.brand }} {{ hot.model_name }}</small>
+                    <span class="badge bg-light text-primary">{{ hot.wishlist_count }} Saves</span>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <div class="col-md-8">
+            <div class="card border-0 shadow-sm rounded-4 overflow-hidden">
+                <div class="table-responsive">
+                    <table class="table align-middle mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th class="ps-4">Buyer Email</th>
+                                <th>Interested In</th>
+                                <th class="text-end pe-4">Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for lead in leads %}
+                            <tr>
+                                <td class="ps-4">
+                                    <div class="fw-bold">{{ lead.user.email }}</div>
+                                    <small class="text-muted">Saved on {{ lead.created_at|date:"d M" }}</small>
+                                </td>
+                                <td>
+                                    <span class="badge bg-indigo-subtle text-indigo" style="background-color: #e8eaf6; color: #3f51b5;">
+                                        {{ lead.phone_listing.model_name }}
+                                    </span>
+                                </td>
+                                <td class="text-end pe-4">
+                                    <a href="#" class="btn btn-sm btn-outline-primary rounded-pill px-3">
+                                        Message Buyer
+                                    </a>
+                                </td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="3" class="text-center py-5 text-muted">No customer leads found for your store.</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

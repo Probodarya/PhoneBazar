@@ -122,6 +122,7 @@ class Order(models.Model):
         related_name='purchases'
     )
     # PROTECT ensures we don't accidentally delete a listing that has a paid order
+    address = models.ForeignKey('Address', on_delete=models.SET_NULL, null=True, blank=True)
     phone_listing = models.ForeignKey('PhoneListing', on_delete=models.PROTECT)
     total_price = models.DecimalField(max_digits=10, decimal_places=2)
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='pending_test')
@@ -185,7 +186,68 @@ class Feedback(models.Model):
     def average_rating(self):
         # Calculates the overall score for this transaction
         return round((self.phone_condition_rating + self.communication_rating + self.shipping_rating) / 3, 1)
+    
+class SupportMessage(models.Model):
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='support_messages')
+    message = models.TextField()
+    is_from_support = models.BooleanField(default=False)
+    timestamp = models.DateTimeField(auto_now_add=True)
 
+    def __str__(self):
+        return f"Message from {self.user.email} at {self.timestamp}"
+from django.conf import settings
+from django.db import models
+
+class Address(models.Model):
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL, 
+        on_delete=models.CASCADE, 
+        related_name='addresses'
+    )
+    full_name = models.CharField(max_length=100)
+    phone_number = models.CharField(max_length=15)
+    address_line = models.TextField()
+    city = models.CharField(max_length=50, default='Surat')
+    pincode = models.CharField(max_length=10)
+    is_default = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.full_name} - {self.city}"
+    
+from django.db import models
+from django.conf import settings
+
+class Wishlist(models.Model):
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL, 
+        on_delete=models.CASCADE, 
+        related_name='wishlist_items'
+    )
+    phone_listing = models.ForeignKey(
+        'PhoneListing', 
+        on_delete=models.CASCADE, 
+        related_name='wishlisted_by'
+    )
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        # This prevents a user from wishlisting the same phone multiple times
+        unique_together = ('user', 'phone_listing')
+
+    def __str__(self):
+        return f"{self.user.email} wishlisted {self.phone_listing.model_name}"
+
+class StoreProfile(models.Model):
+    user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='store')
+    store_name = models.CharField(max_length=100)
+    gst_number = models.CharField(max_length=15, blank=True)
+    store_address = models.TextField()
+    contact_number = models.CharField(max_length=15)
+    is_active = models.BooleanField(default=True)
+
+    def __str__(self):
+        return self.store_name
 
 
 
