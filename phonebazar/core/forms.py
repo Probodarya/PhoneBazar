@@ -70,6 +70,19 @@ class EditProfileForm(forms.ModelForm):
         }
 
 # date 4/3/2026 working on post ad form
+from django import forms
+from .models import PhoneListing
+
+BRAND_CHOICES = [
+    ('', 'Select Brand'),
+    ('Apple', 'Apple'),
+    ('Samsung', 'Samsung'),
+    ('Google', 'Google'),
+    ('OnePlus', 'OnePlus'),
+    ('Xiaomi', 'Xiaomi'),
+    ('Vivo', 'Vivo'),
+    ('Oppo', 'Oppo'),
+]
 class PhoneListingForm(forms.ModelForm):
     class Meta:
         model = PhoneListing
@@ -77,11 +90,11 @@ class PhoneListingForm(forms.ModelForm):
         fields = ['brand', 'model_name', 'imei_number', 'price', 'description', 'image']
         widgets = {
             'description': forms.Textarea(attrs={'class': 'form-control', 'rows': 4, 'placeholder': 'Describe the phone condition...'}),
-            'brand': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'e.g., Apple, Samsung'}),
-            'model_name': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'e.g., iPhone 15 Pro'}),
+            'brand': forms.Select(choices=BRAND_CHOICES, attrs={'class': 'form-select', 'id': 'brand-select'}),
+            'model_name': forms.Select(choices=[('', 'Select Model')], attrs={'class': 'form-select', 'id': 'model-select'}),
             'imei_number': forms.TextInput(attrs={'class': 'form-control', 'placeholder': '15-digit IMEI number'}),
             'price': forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'Set your price'}),
-            'image': forms.ClearableFileInput(attrs={'class': 'form-control'}),
+            'image': forms.ClearableFileInput(attrs={'class': 'form-control'},),
         }
 from django import forms
 from .models import Feedback

@@ -14,6 +14,7 @@ urlpatterns = [
   # date 4/3/2026 working on post ad form
   path('post-ad/', views.post_phone_ad, name='post_phone_ad'),
   path('post-ad/success/', views.post_ad_success, name='post_ad_success'),
+  path('dashboard-check/', views.dashboard_redirect, name='dashboard_check'),
   #5-2-2026 work
   path('marketplace/', views.marketplace_home, name='marketplace_home'),
   path('phone/<int:pk>/', views.phone_detail, name='phone_detail'),

@@ -122,6 +122,7 @@ def post_phone_ad(request):
     if request.method == 'POST':
         # request.FILES is required for the ImageField
         form = PhoneListingForm(request.POST, request.FILES)
+        
         if form.is_valid():
             listing = form.save(commit=False)
             listing.seller = request.user # Link the listing to the logged-in seller
@@ -137,6 +138,25 @@ def post_ad_success(request):
     return render(request, 'core/post_ad_success.html')
         
     return render(request, 'core/post_ad.html', {'form': form})
+from django.shortcuts import redirect
+from django.contrib.auth.decorators import login_required
+
+@login_required
+def dashboard_redirect(request):
+    """
+    Central logic to route users based on their specific role.
+    """
+    role = getattr(request.user, 'role', None)
+    
+    if role == "Buyer":
+        return redirect("Buyer_dashboard")
+    elif role == "Seller":
+        return redirect("Seller_dashboard")
+    elif role == "Retailer":
+        return redirect("Retailer_dashboard")
+    
+    # Fallback to home if no role is found
+    return redirect("home")
 
 from django.shortcuts import render
 from django.contrib.auth.decorators import login_required

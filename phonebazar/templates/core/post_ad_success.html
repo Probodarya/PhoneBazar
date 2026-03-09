@@ -1,23 +1,109 @@
 {% extends 'base.html' %}
+{% load static %}
 
 {% block content %}
-<div class="container mt-5 text-center">
-    <div class="card shadow p-5">
-        <h1 class="text-success">🎉 Listing Submitted!</h1>
-        <p class="lead">Your phone has been successfully added to our database.</p>
-        <hr>
-        <div class="text-start mx-auto" style="max-width: 500px;">
-            <h5>Next Steps:</h5>
-            <ul>
-                <li>Your listing is currently <strong>Unverified</strong>.</li>
-                <li>Visit our Surat service center for the <strong>Diagnostic Test</strong>.</li>
-                <li>Once verified, your ad will go live for buyers!</li>
-            </ul>
-        </div>
-        <div class="mt-4">
-            <a href="{% url 'Seller_dashboard' %}" class="btn btn-primary">Go to Dashboard</a>
-            
-            <{% comment "" %}<a href="{% url 'marketplace_home' %}" class="btn btn-outline-secondary">Browse Marketplace</a>{% endcomment %}
+<style>
+    .success-wrapper {
+        min-height: 80vh;
+        display: flex;
+        align-items: center;
+    }
+    .success-card {
+        border: none;
+        border-radius: 32px;
+        background: #ffffff;
+        box-shadow: 0 20px 60px rgba(0,0,0,0.06);
+    }
+    .confetti-icon {
+        font-size: 5rem;
+        color: #2eaf7d; /* PhoneBazar Emerald */
+        margin-bottom: 24px;
+        animation: scaleUp 0.5s ease-out;
+    }
+    @keyframes scaleUp {
+        0% { transform: scale(0); }
+        80% { transform: scale(1.1); }
+        100% { transform: scale(1); }
+    }
+    .timeline-item {
+        padding: 20px;
+        border-radius: 16px;
+        background: #f8faff;
+        margin-bottom: 12px;
+        border: 1px solid #eef2f7;
+        display: flex;
+        align-items: flex-start;
+        text-align: left;
+    }
+    .timeline-icon {
+        width: 32px;
+        height: 32px;
+        background: #3f51b5; /* PhoneBazar Indigo */
+        color: white;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: bold;
+        margin-right: 15px;
+        flex-shrink: 0;
+    }
+    .btn-dashboard {
+        background-color: #ebebee;
+        border: none;
+        padding: 14px 40px;
+        border-radius: 50px;
+        font-weight: 700;
+        transition: 0.3s;
+    }
+    .btn-dashboard:hover {
+        background-color: #2eaf7d;
+        transform: translateY(-2px);
+    }
+</style>
+
+<div class="success-wrapper">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-6 text-center">
+                <div class="card success-card p-5">
+                    <i class="bi bi-check-circle-fill confetti-icon"></i>
+                    
+                  <h1 class="fw-bold mb-2">Awesome, {{ request.user.firstname}}!</h1>
+                    <p class="text-muted mb-5">Your listing for <strong>PhoneBazar</strong> is safely submitted.</p>
+                    
+                    <div class="mb-5">
+                        <div class="timeline-item">
+                            <div class="timeline-icon">1</div>
+                            <div>
+                                <h6 class="fw-bold mb-0">System Logged</h6>
+                                <p class="small text-muted mb-0">Your phone is now in our secure Surat database.</p>
+                            </div>
+                        </div>
+                        <div class="timeline-item">
+                            <div class="timeline-icon">2</div>
+                            <div>
+                                <h6 class="fw-bold mb-0">Technical Diagnostic</h6>
+                                <p class="small text-muted mb-0">Visit our Adajan or Vesu hub for your 32-point test.</p>
+                            </div>
+                        </div>
+                        <div class="timeline-item">
+                            <div class="timeline-icon">3</div>
+                            <div>
+                                <h6 class="fw-bold mb-0">Ad Goes Live</h6>
+                                <p class="small text-muted mb-0">Once verified, buyers will see your listing instantly.</p>
+                            </div>
+                        </div>
+                    </div>
+
+               <div class="d-grid gap-2">
+                    <a href="{% url 'dashboard_check' %}" class="btn btn-dashboard btn-lg text-white">
+                        Go to My Dashboard <i class="bi bi-arrow-right ms-2"></i>
+                    </a>
+                   
+                </div>
+                </div>
+            </div>
         </div>
     </div>
 </div>

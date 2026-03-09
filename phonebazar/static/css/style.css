@@ -664,3 +664,98 @@ h2, h4 {
     line-height: 1.6;
 }
 
+.badge-instant {
+    display: inline-flex;
+    align-items: center;
+    background: #e6f6ef; /* Light green subtle */
+    color: #2eaf7d;
+    padding: 6px 16px;
+    border-radius: 50px;
+    font-weight: 600;
+}
+
+.pb-icon-small {
+    width: 32px;
+    height: 32px;
+    object-fit: contain;
+}
+
+.floating-gfx {
+    animation: floatGfx 5s ease-in-out infinite;
+    filter: drop-shadow(0 25px 40px rgba(0,0,0,0.2));
+    max-height: 400px;
+}
+
+@keyframes floatGfx {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-15px); }
+}
+
+.transaction-gfx {
+    position: relative;
+    display: inline-block;
+}
+
+.price-drop-tag {
+    position: absolute;
+    top: 20%;
+    right: 5%;
+    background: #ffa000;
+    color: white;
+    font-weight: 900;
+    padding: 10px 15px;
+    border-radius: 50%;
+    transform: rotate(15deg);
+    box-shadow: 0 5px 15px rgba(255, 160, 0, 0.3);
+}
+/* Condition Selectors */
+.condition-box {
+    flex: 1;
+    min-width: 100px;
+    padding: 15px;
+    border: 2px solid #eee;
+    border-radius: 12px;
+    text-align: center;
+    cursor: pointer;
+    transition: 0.2s ease;
+}
+
+.condition-box:hover {
+    border-color: #2eaf7d;
+}
+
+.condition-box.active {
+    background-color: #f0fdf4;
+    border-color: #2eaf7d;
+    color: #2eaf7d;
+}
+
+/* Vertical Steps */
+.vertical-steps {
+    margin-left: 10px;
+}
+
+.v-step {
+    border-color: #eee !important;
+}
+
+.step-dot {
+    position: absolute;
+    left: -6px;
+    top: 0;
+    width: 12px;
+    height: 12px;
+    background: #2eaf7d;
+    border-radius: 50%;
+}
+
+/* Form Refinement */
+.form-control:focus, .form-select:focus {
+    border-color: #2eaf7d;
+    box-shadow: 0 0 0 4px rgba(46, 175, 125, 0.1);
+}
+
+.border-dashed {
+    border-style: dashed !important;
+    border-color: #2eaf7d !important;
+}

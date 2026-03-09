@@ -1,52 +1,141 @@
 {% extends 'base.html' %}
+{% load static %}
+
 {% block content %}
+<style>
+    /* Revenue Cards */
+    .revenue-gradient {
+        background: linear-gradient(135deg, #2ecc71 0%, #27ae60 100%);
+        border: none;
+        border-radius: 24px;
+        position: relative;
+        overflow: hidden;
+    }
+    .revenue-gradient::after {
+        content: "";
+        position: absolute;
+        top: -50%; right: -20%;
+        width: 200px; height: 200px;
+        background: rgba(255,255,255,0.1);
+        border-radius: 50%;
+    }
+    .stat-card {
+        border: none;
+        border-radius: 24px;
+        background: #ffffff;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.04);
+        transition: transform 0.3s ease;
+    }
+    .stat-card:hover { transform: translateY(-5px); }
 
+    /* Transaction Table */
+    .transaction-card {
+        border: none;
+        border-radius: 24px;
+        box-shadow: 0 20px 50px rgba(0,0,0,0.05);
+    }
+    .table thead th {
+        background-color: #f8faff;
+        text-transform: uppercase;
+        font-size: 0.75rem;
+        letter-spacing: 1px;
+        font-weight: 700;
+        color: #888;
+        border: none;
+    }
+    .badge-paid {
+        background: #eafaf1;
+        color: #2ecc71;
+        font-weight: 700;
+        padding: 8px 16px;
+    }
+</style>
 
-<div class="container mt-4">
+<div class="container py-5">
     <div class="row g-4 mb-5">
-        <div class="col-md-6">
-            <div class="card border-0 shadow-sm p-4" style="background: linear-gradient(135deg, #3bc5a4 0%, #2ecc71 100%); color: white;">
-                <h6 class="text-uppercase small opacity-75">Lifetime Earnings</h6>
-                <h1 class="display-4 fw-bold">₹{{ total_revenue }}</h1>
-                <p class="mb-0 mt-2"><i class="bi bi-graph-up"></i> Total {{ sales_count }} successful sales</p>
+        <div class="col-md-7">
+            <div class="card revenue-gradient p-5 shadow-lg text-white">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h6 class="text-uppercase small opacity-75 fw-bold mb-0">Total Lifetime Earnings</h6>
+                    <i class="bi bi-wallet2 fs-3"></i>
+                </div>
+                <h1 class="display-3 fw-bold mb-2">₹{{ total_revenue }}</h1>
+                <p class="mb-0 opacity-75"><i class="bi bi-arrow-up-circle-fill me-2"></i>You've successfully completed <strong>{{ sales_count }}</strong> sales in Surat.</p>
             </div>
         </div>
-        <div class="col-md-6">
-            <div class="card border-0 shadow-sm p-4 bg-white">
-                <h6 class="text-uppercase small text-muted">Earnings This Month</h6>
-                <h1 class="display-4 fw-bold text-dark">₹{{ monthly_revenue }}</h1>
-                <p class="mb-0 mt-2 text-success"><i class="bi bi-calendar-check"></i> Keeping up the momentum!</p>
+        <div class="col-md-5">
+            <div class="card stat-card p-5 h-100 border-start border-5 border-success">
+                <h6 class="text-uppercase small text-muted fw-bold mb-3">Earnings This Month</h6>
+                <h2 class="display-5 fw-bold text-dark">₹{{ monthly_revenue }}</h2>
+                <div class="mt-4">
+                    <div class="progress" style="height: 8px; border-radius: 10px;">
+                        <div class="progress-bar bg-success" style="width: 75%"></div>
+                    </div>
+                    <p class="small text-muted mt-2 mb-0"><strong>+12%</strong> more than last month.</p>
+                </div>
             </div>
         </div>
     </div>
 
-    <div class="card border-0 shadow-sm overflow-hidden">
-        <div class="card-header bg-white py-3">
-            <h5 class="mb-0 fw-bold">Recent Transactions</h5>
+    <div class="card transaction-card overflow-hidden">
+        <div class="card-header bg-white py-4 px-4 border-0">
+            <h5 class="mb-0 fw-bold text-dark">Transaction History</h5>
         </div>
         <div class="table-responsive">
             <table class="table align-middle mb-0">
-                <thead class="table-light">
+                <thead>
                     <tr>
-                        <th class="ps-4">Date</th>
-                        <th>Device</th>
-                        <th>Amount</th>
-                        <th class="text-end pe-4">Status</th>
+                        <th class="ps-4">Transfer Date</th>
+                        <th> </th>
+                        <th>Device Sold</th>
+                        <th> </th>
+                        <th>Amount Credited</th>
+                        <th> </th>
+                        <th class="text-end pe-4">Payment Status</th>
                     </tr>
                 </thead>
                 <tbody>
                     {% for sale in sales %}
-                    <tr>
-                        <td class="ps-4 text-muted small">{{ sale.created_at|date:"d M Y" }}</td>
-                        <td><strong>{{ sale.phone_listing.brand }}</strong> {{ sale.phone_listing.model_name }}</td>
-                        <td class="fw-bold text-success">+ ₹{{ sale.total_price }}</td>
+                    <tr class="border-transparent">
+                        <td class="ps-4">
+                            <span class="text-dark fw-bold d-block">{{ sale.created_at|date:"d M Y" }}</span>
+                            <span class="text-muted x-small">via UPI Transfer</span>
+                        </td>
+                        <td>
+                        
+                        </td>
+                        <td>
+                            <div class="d-flex align-items-center">
+                                <div class="bg-light p-2 rounded-3 me-3">
+                                    <i class="bi bi-phone text-primary"></i>
+                                </div>
+                                <div>
+                                    <span class="d-block fw-bold">{{ sale.phone_listing.brand }}</span>
+                                    <span class="text-muted small">{{ sale.phone_listing.model_name }}</span>
+                                </div>
+                            </div>
+                        </td>
+                        <td>
+                        </td>
+                        <td>
+                            <span class="fs-5 fw-bold text-success">+ ₹{{ sale.total_price }}</span>
+                        </td>
+                        <td>
+                        </td>
                         <td class="text-end pe-4">
-                            <span class="badge bg-success-subtle text-success rounded-pill">Paid</span>
+                            <span class="badge badge-paid rounded-pill">
+                                <i class="bi bi-patch-check-fill me-1"></i> Paid
+                            </span>
                         </td>
                     </tr>
                     {% empty %}
                     <tr>
-                        <td colspan="4" class="text-center py-5 text-muted">No earnings history found yet.</td>
+                        <td colspan="4" class="text-center py-5">
+                            <div class="py-4">
+                                <i class="bi bi-inbox display-4 text-light"></i>
+                                <p class="text-muted mt-3">No earnings recorded yet. List a device to start earning!</p>
+                            </div>
+                        </td>
                     </tr>
                     {% endfor %}
                 </tbody>
@@ -54,5 +143,4 @@
         </div>
     </div>
 </div>
-
 {% endblock %}

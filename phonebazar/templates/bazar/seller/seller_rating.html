@@ -1,60 +1,160 @@
 {% extends 'base.html' %}
+{% load static %}
+
 {% block content %}
+<style>
+    /* Bento Grid Structure */
+    .bento-container {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        grid-template-rows: auto;
+        gap: 20px;
+    }
 
-<div class="container mt-4">
-    <div class="row g-4">
-        <div class="col-md-4">
-            <div class="card border-0 shadow-sm p-4 text-center h-100">
-                <h6 class="text-uppercase small text-muted fw-bold">Average Store Rating</h6>
-                <h1 class="display-2 fw-bold text-dark mt-3">{{ avg_score }}</h1>
-                <div class="text-warning fs-3 mb-2">
-                    {% for i in "12345" %}
-                        {% if forloop.counter <= avg_score %}★{% else %}☆{% endif %}
-                    {% endfor %}
-                </div>
-                <p class="text-muted small">Based on {{ total_reviews }} verified buyer reviews</p>
-                <div class="badge bg-soft-teal text-teal p-2 rounded-pill mt-2">
-                    <i class="bi bi-patch-check-fill"></i> Top Rated Seller
-                </div>
-            </div>
+    .bento-item {
+        background: #ffffff;
+        border-radius: 32px;
+        padding: 30px;
+        border: 1px solid #f0f0f0;
+        transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+
+    .bento-item:hover {
+        border-color: #ffc107;
+        box-shadow: 0 20px 40px rgba(0,0,0,0.05);
+    }
+
+    /* Unique Tile Assignments */
+    .tile-score { grid-column: span 2; grid-row: span 1; background: #1a237e; color: white; }
+    .tile-breakdown { grid-column: span 2; grid-row: span 1; }
+    .tile-review { grid-column: span 2; }
+
+    /* Typography & Accents */
+    .gold-text { color: #ffc107; }
+    .indigo-pill { background: #e8eaf6; color: #1a237e; font-weight: 700; border-radius: 50px; padding: 5px 15px; font-size: 0.75rem; }
+    
+    .rating-number { font-size: 6rem; line-height: 1; font-weight: 800; letter-spacing: -4px; }
+    
+    .progress-bento { height: 8px; background: #f5f5f5; border-radius: 10px; overflow: hidden; }
+    .bar-gold { background: #ffc107; }
+
+    @media (max-width: 992px) {
+        .bento-container { grid-template-columns: repeat(1, 1fr); }
+        .tile-score, .tile-breakdown, .tile-review { grid-column: span 1; }
+    }
+
+    .progress-bento {
+    background-color: #ffffff;
+    border: 1px solid #ced4da;
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+/* The specific Orange from your reference image */
+.progress-bento .progress-bar {
+    background-color: #FFD700 !important; 
+    box-shadow: none;
+}
+
+.text-primary {
+    color: #007185 !important; /* Amazon-style Blue for text */
+}
+    
+</style>
+
+<div class="container py-5">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h1 class="fw-bold mb-0">Merchant Insights</h1>
+            <p class="text-muted"> {{ request.user.firstname}}'s Store Performance • Surat, GJ</p>
         </div>
-
-        <div class="col-md-8">
-            <div class="card border-0 shadow-sm p-4 h-100">
-                <h6 class="fw-bold mb-4">Rating Breakdown</h6>
-                {% for star in star_counts %}
-                <div class="d-flex align-items-center mb-3">
-                    <span class="small fw-bold me-3" style="width: 50px;">{{ star.stars }} Stars</span>
-                    <div class="progress flex-grow-1" style="height: 10px; border-radius: 10px;">
-                        <div class="progress-bar bg-teal" role="progressbar" style="width: {{ star.percent }}%; background-color: #3bc5a4;"></div>
-                    </div>
-                    <span class="small text-muted ms-3" style="width: 30px;">{{ star.count }}</span>
-                </div>
-                {% endfor %}
-            </div>
+        <div class="indigo-pill">
+            <i class="bi bi-geo-alt-fill me-1"></i> Verified Local Seller
         </div>
     </div>
 
-    <div class="card border-0 shadow-sm mt-5 overflow-hidden">
-        <div class="card-header bg-white py-3">
-            <h5 class="mb-0 fw-bold">Recent Feedback</h5>
-        </div>
-        <div class="list-group list-group-flush">
-            {% for review in reviews %}
-            <div class="list-group-item p-4">
-                <div class="d-flex justify-content-between align-items-center mb-2">
-                    <span class="text-warning fw-bold">
-                        {% for i in "12345" %}{% if forloop.counter <= review.phone_condition_rating %}★{% endif %}{% endfor %}
-                    </span>
-                    <span class="small text-muted">{{ review.created_at|date:"d M Y" }}</span>
-                </div>
-                <p class="mb-1 text-dark">"{{ review.comment }}"</p>
-                <small class="text-muted">Purchased: <strong>{{ review.phone_listing.model_name }}</strong></small>
+    <div class="bento-container">
+        <div class="bento-item tile-score d-flex flex-column justify-content-between">
+            <div class="d-flex justify-content-between align-items-start">
+                <h5 class="fw-bold opacity-75">Average Store Rating</h5>
+                <i class="bi bi-stars gold-text fs-3"></i>
             </div>
-            {% empty %}
-            <div class="p-5 text-center text-muted">No reviews received yet. Stay active to get rated!</div>
-            {% endfor %}
+            <div class="text-center my-4">
+                <span class="rating-number gold-text">{{ avg_score }}</span>
+            </div>
+            <div class="d-flex justify-content-between align-items-center">
+                <div class="fs-5">
+                    {% for i in "12345" %}<i class="bi bi-star-fill gold-text"></i>{% endfor %}
+                </div>
+                <span class="small opacity-50">{{ total_reviews }} verified reviews</span>
+            </div>
         </div>
+
+        <div class="bento-item tile-breakdown">
+    <h5 class="fw-bold mb-4">Customer Reviews</h5>
+    
+    <div class="d-flex align-items-center mb-4">
+        <div class="text-warning fs-4 me-2">
+            <i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star text-muted"></i>
+        </div>
+        <span class="fw-bold fs-5">{{ avg_score }} out of 5</span>
+    </div>
+    <p class="text-muted small mb-4">{{ total_reviews }} global ratings</p>
+
+     {% for star in star_counts %}
+             <div class="d-flex align-items-center mb-2">
+                    <div style="min-width: 50px;">
+                        <span class="small fw-bold text-primary">{{ star.stars }} star</span>
+                    </div>
+                    
+                    <div class="progress-bento flex-grow-1 mx-3" style="height: 20px; border: 1px solid #adb5bd; border-radius: 4px; background: #fff;">
+                        <div class="progress-bar" 
+                            style="width: {{ star.percent|floatformat:0 }}%; background-color: #ff6000; height: 100%; transition: 0.6s;">
+                        </div>
+                    </div>
+                    
+                    <div style="min-width: 40px;" class="text-end">
+                        <span class="small fw-bold text-primary">{{ star.percent|floatformat:0 }}%</span>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+
+        {% for review in reviews %}
+        <div class="bento-item tile-review">
+            <div class="d-flex align-items-center mb-4">
+                <div class="avatar rounded-circle bg-secondary text-white d-flex align-items-center justify-content-center me-3" style="width: 50px; height: 50px; font-size: 1.25rem;">
+                    
+                    {% if review.buyer %}
+                        {{ review.buyer.firstname|slice:"10"|upper }}
+                    {% else %}
+                        V
+                    {% endif %}
+
+                </div>
+
+             <div>
+
+    <span class="text-muted x-small">{{ review.created_at|date:"M d, Y" }}</span>
+</div>
+                <div class="ms-auto">
+                    <span class="gold-text fw-bold">{{ review.phone_condition_rating }}★</span>
+                </div>
+            </div>
+
+            <p class="text-dark mb-4" style="text-align: justify; font-size: 1.05rem;">
+                "{{ review.comment }}"
+            </p>
+
+            <div class="pt-3 border-top d-flex justify-content-between align-items-center">
+                
+            </div>
+        </div>
+        {% empty %}
+        <div class="bento-item tile-review text-center py-5">
+            <p class="text-muted">No reviews yet. Start selling in Surat to populate your bento!</p>
+        </div>
+        {% endfor %}
     </div>
 </div>
 {% endblock %}

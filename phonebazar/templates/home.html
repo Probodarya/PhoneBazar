@@ -10,19 +10,12 @@
     <div class="container">
         <div class="row align-items-center">
             <div class="col-lg-6 hero-text-box">
-                <img src="{% static 'images/PhoneBazar_Logo.png' %}" alt="Hero Background" class="hero-bg d-none d-lg-block">
+                <img src="{% static 'images/logo.png' %}" alt="Hero Background" class="hero-bg d-none d-lg-block">
                 <div class="badge bg-soft-primary text-primary px-3 py-2 mb-3 rounded-pill">📍 Trusted in Surat</div>
                 <h1 class="display-4 fw-bold mb-3">Get the <span class="text-primary">Best Value</span> for your Old Phone</h1>
                 <p class="lead text-muted">Instant valuation, door-step pickup, and secure payments. Join the smartest marketplace in Gujarat.</p>
                 
-                <div class="hero-buttons mt-4">
-                    {% if not user.is_authenticated %}
-                        <a href="{% url 'signup' %}" class="btn btn-primary btn-lg shadow-sm px-5">Sell Now</a>
-                        <a href="{% url 'login' %}" class="btn btn-link text-decoration-none ms-3">Already a member? Login</a>
-                    {% else %}
-                        <a href="{% url 'Buyer_dashboard' %}" class="btn btn-primary btn-lg px-5">Go to Marketplace</a>
-                    {% endif %}
-                </div>
+           
             </div>
             <div class="col-lg-6 text-center d-none d-lg-block">
                 <img src="{% static 'images/1.png' %}" alt="Selling Phone" class="img-fluid floating-img">
@@ -37,25 +30,72 @@
     <div class="row g-4">
         <div class="col-md-4">
             <div class="feature-card h-100 p-4 border-0 shadow-sm text-center">
-                <div class="icon-circle bg-light-blue mb-3">💰</div>
-                <h5>Instant Cash</h5>
-                <p class="small text-muted">Get paid immediately at the time of pickup.</p>
+              <h1 class="display-5 fw-bold mb-3">Sell Your Phone, Get <span class="text-primary">Instant Cash!</span></h1>
+            <p class="lead text-muted mb-4">
+                Skip the waiting. We value your phone instantly and provide immediate payment on the spot via cash or UPI at your doorstep in Surat.
+            </p>
+        
+        </div>
+
+        <div class="col-lg-5 text-center mt-5 mt-lg-0">
+            <div class="transaction-gfx">
+                <img src="{% static 'images/instantcash.jpg' %}" alt="PhoneBazar Instant Cash" class="img-fluid floating-gfx">
+               
             </div>
         </div>
-        <div class="col-md-4">
-            <div class="feature-card h-100 p-4 border-0 shadow-sm text-center highlighted-card">
-                <div class="icon-circle bg-light-green mb-3">🛠️</div>
-                <h5>Expert Testing</h5>
-                <p class="small text-muted">Professional diagnostic reports for every device.</p>
+        </div>
+        <div class="container my-5 py-5 border-top border-bottom border-light">
+    <div class="row align-items-center bg-white shadow-sm p-4 rounded-4 technical-hero">
+        
+        <div class="col-lg-6 text-center position-relative mb-5 mb-lg-0">
+            <div class="technical-gfx-wrapper">
+                
+                
+            <h1 class="display-5 fw-bold mb-3">Expertise <span class="text-primary">You Can Trust</span></h1>
+            <p class="lead text-muted mb-4">
+                Skip the guessing. Every phone on PhoneBazar undergoes a mandatory, multi-point expert inspection. We provide full professional diagnostic reports, so you buy with 100% confidence from local Surat retailers.
+            </p>
+                <div class="technical-label label-battery">BATTERY CAPACITY: 98% Verified</div>
+                <div class="technical-label label-display">DISPLAY PIXELS: PASSED</div>
+                <div class="technical-label label-logic">LOGIC BOARD: ERROR-FREE</div>
+                <img src="{% static 'images/expert_testing.jpg' %}" alt="PhoneBazar Expert Testing" class="img-fluid floating-technical-gfx">
             </div>
         </div>
-        <div class="col-md-4">
-            <div class="feature-card h-100 p-4 border-0 shadow-sm text-center">
-                <div class="icon-circle bg-light-purple mb-3">🛡️</div>
-                <h5>Safe & Secure</h5>
-                <p class="small text-muted">100% Data privacy and secure transaction handling.</p>
+
+
+           
+    
+    
+        <div class="container my-5 py-5 border-top border-bottom border-light">
+    <div class="row align-items-center bg-white shadow-sm p-4 rounded-4 feature-hero">
+        
+        <div class="col-lg-7 ps-lg-5 text-lg-start text-center">
+            <div class="badge-secure mb-3">
+                <i class="bi bi-shield-lock-fill"></i> Data Privacy Certified
+            </div>
+            <h1 class="display-5 fw-bold mb-3">100% Safe & <span class="text-primary">Secure Transactions</span></h1>
+            <p class="lead text-muted mb-4">
+                Skip the worry. We provide military-grade, certified data wipes on all sold phones and ensure 100% secured payments for both buyers and sellers across Surat. Complete privacy guaranteed.
+            </p>
+            <div class="d-grid d-lg-flex gap-3 justify-content-lg-start justify-content-center">
+                
+                    Shop Securely Now <i class="bi bi-lock ms-2"></i>
+                </a>
+               
+                    Our Data Policy
+                </a>
             </div>
         </div>
+
+        <div class="col-lg-5 text-center mt-5 mt-lg-0">
+            <div class="secure-gfx-wrapper">
+                <img src="{% static 'images/safe.jpg' %}" alt="PhoneBazar Safe & Secure" class="img-fluid floating-gfx">
+               
+            </div>
+        </div>
+
+    </div>
+</div>
     </div>
 </div>
 
@@ -137,38 +177,7 @@
         </div>
         
         <div class="col-lg-7 mt-5 mt-lg-0">
-            <div class="row g-3">
-                <div class="col-6 col-md-4">
-                    <div class="p-3 bg-white shadow-sm rounded-3 text-center border-bottom border-3 border-primary">
-                        <h6 class="mb-0 fw-bold">Adajan</h6>
-                    </div>
-                </div>
-                <div class="col-6 col-md-4">
-                    <div class="p-3 bg-white shadow-sm rounded-3 text-center border-bottom border-3 border-primary">
-                        <h6 class="mb-0 fw-bold">Vesu</h6>
-                    </div>
-                </div>
-                <div class="col-6 col-md-4">
-                    <div class="p-3 bg-white shadow-sm rounded-3 text-center border-bottom border-3 border-primary">
-                        <h6 class="mb-0 fw-bold">Varachha</h6>
-                    </div>
-                </div>
-                <div class="col-6 col-md-4">
-                    <div class="p-3 bg-white shadow-sm rounded-3 text-center border-bottom border-3 border-primary">
-                        <h6 class="mb-0 fw-bold">Piplod</h6>
-                    </div>
-                </div>
-                <div class="col-6 col-md-4">
-                    <div class="p-3 bg-white shadow-sm rounded-3 text-center border-bottom border-3 border-primary">
-                        <h6 class="mb-0 fw-bold">Katargam</h6>
-                    </div>
-                </div>
-                <div class="col-6 col-md-4">
-                    <div class="p-3 bg-white shadow-sm rounded-3 text-center border-bottom border-3 border-primary">
-                        <h6 class="mb-0 fw-bold">Althan</h6>
-                    </div>
-                </div>
-            </div>
+           <B> Adajan, Vesu, Varachha, Piplod, Katargam, Althan </B>
         </div>
     </div>
 </div>
