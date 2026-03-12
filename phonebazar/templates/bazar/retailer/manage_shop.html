@@ -1,55 +1,127 @@
-{% extends 'base.html' %}
+<style>
+    /* Storefront Card Styling */
+    .shop-profile-card {
+        border-radius: 1.5rem;
+        background: linear-gradient(145deg, #ffffff, #f8faff);
+        border: 1px solid #edf2f7 !important;
+    }
+
+    /* Form Input Focus Effects */
+    .form-control.bg-light:focus {
+        background-color: #ffffff !important;
+        border: 1px solid #3f51b5 !important;
+        box-shadow: 0 0 0 4px rgba(63, 81, 181, 0.1);
+        color: #3f51b5;
+    }
+
+    /* Storefront Icon Glow */
+    .store-icon-wrapper {
+        background: #eef2ff;
+        color: #3f51b5;
+        transition: all 0.3s ease;
+    }
+    .shop-profile-card:hover .store-icon-wrapper {
+        transform: scale(1.05);
+        background: #3f51b5;
+        color: #ffffff;
+    }
+
+    /* Save Button Lift */
+    .btn-save-settings {
+        transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+        box-shadow: 0 4px 15px rgba(63, 81, 181, 0.2);
+    }
+    .btn-save-settings:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 8px 25px rgba(63, 81, 181, 0.3);
+        background-color: #303f9f !important;
+    }
+</style>
+{% extends "base.html" %}
 {% block content %}
-
-
-<div class="container mt-4">
-    <div class="row">
+<div class="container py-5">
+    <div class="row g-4">
+        
         <div class="col-md-4">
-            <div class="card border-0 shadow-sm rounded-4 p-4 text-center mb-4">
-                <div class="rounded-circle bg-light d-flex align-items-center justify-content-center mx-auto mb-3" style="width: 80px; height: 80px;">
-                    <i class="bi bi-shop-window fs-1 text-primary"></i>
+            <div class="card shop-profile-card shadow-sm p-4 text-center sticky-top" style="top: 2rem;">
+                <div class="store-icon-wrapper rounded-circle d-flex align-items-center justify-content-center mx-auto mb-3 shadow-sm" style="width: 100px; height: 100px;">
+                    <i class="bi bi-shop-window fs-1"></i>
                 </div>
-                <h5 class="fw-bold">{{ store.store_name|default:"Your Shop Name" }}</h5>
-                <p class="text-muted small">ID: #RE-{{ store.id|default:"000" }}</p>
-                <hr>
-                <div class="d-flex justify-content-between small mb-2">
-                    <span>Listing Limit:</span>
-                    <span class="fw-bold text-success">Unlimited</span>
+                
+                <h4 class="fw-bold mb-1 text-dark">{{ store.store_name|default:"PhoneBazar Retailer" }}</h4>
+                <p class="text-muted small">Verified Merchant • Surat, Gujarat</p>
+                
+                <div class="bg-white border rounded-4 p-3 mt-3 shadow-sm">
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <small class="text-muted">Account ID</small>
+                        <code class="text-primary fw-bold">#RE-{{ store.id|default:"000" }}</code>
+                    </div>
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <small class="text-muted">Listing Tier</small>
+                        <span class="badge bg-success-subtle text-success border border-success-subtle rounded-pill">Unlimited</span>
+                    </div>
+                    <div class="d-flex justify-content-between align-items-center">
+                        <small class="text-muted">KYC Status</small>
+                        <span class="text-success small fw-bold"><i class="bi bi-patch-check-fill me-1"></i> Verified</span>
+                    </div>
                 </div>
-                <div class="d-flex justify-content-between small">
-                    <span>Account Status:</span>
-                    <span class="badge bg-success-subtle text-success">Verified</span>
+
+                <div class="mt-4">
+                    <a href="#" class="btn btn-outline-primary btn-sm rounded-pill w-100 py-2">View Public Profile</a>
                 </div>
             </div>
         </div>
 
         <div class="col-md-8">
-            <div class="card border-0 shadow-sm rounded-4 p-4">
-                <h4 class="fw-bold mb-4">Shop <span style="color: #3f51b5;">Settings</span></h4>
+            <div class="card border-0 shadow-sm rounded-4 p-4 p-lg-5">
+                <div class="d-flex align-items-center mb-4">
+                    <div class="bg-indigo-subtle p-2 rounded-3 me-3" style="background-color: #e8eaf6;">
+                        <i class="bi bi-gear-wide-connected fs-4 text-primary"></i>
+                    </div>
+                    <div>
+                        <h3 class="fw-bold mb-0">Shop <span style="color: #3f51b5;">Settings</span></h3>
+                        <p class="text-muted small mb-0">Update your business details for the PhoneBazar marketplace.</p>
+                    </div>
+                </div>
                 
                 <form method="POST">
                     {% csrf_token %}
-                    <div class="row g-3">
+                    <div class="row g-4">
+                        <div class="col-md-12">
+                            <label class="form-label small fw-bold text-muted text-uppercase">Business Identity</label>
+                        </div>
                         <div class="col-md-6">
-                            <label class="form-label small fw-bold">Business Name</label>
-                            <input type="text" name="store_name" value="{{ store.store_name }}" class="form-control bg-light border-0" placeholder="e.g. Surat Mobile Hub" required>
+                            <label class="form-label small fw-bold">Business / Store Name</label>
+                            <input type="text" name="store_name" value="{{ store.store_name }}" class="form-control bg-light border-0 py-2" placeholder="e.g. Surat Tech Hub" required>
                         </div>
                         <div class="col-md-6">
                             <label class="form-label small fw-bold">GST Number (Optional)</label>
-                            <input type="text" name="gst_number" value="{{ store.gst_number }}" class="form-control bg-light border-0" placeholder="24AAAAA0000A1Z5">
+                            <input type="text" name="gst_number" value="{{ store.gst_number }}" class="form-control bg-light border-0 py-2" placeholder="24AAAAA0000A1Z5">
+                        </div>
+
+                        <div class="col-md-12 mt-4">
+                            <label class="form-label small fw-bold text-muted text-uppercase">Location & Support</label>
                         </div>
                         <div class="col-md-12">
-                            <label class="form-label small fw-bold">Store Address</label>
-                            <textarea name="store_address" class="form-control bg-light border-0" rows="3" required>{{ store.store_address }}</textarea>
+                            <label class="form-label small fw-bold">Physical Store Address</label>
+                            <textarea name="store_address" class="form-control bg-light border-0" rows="3" placeholder="Enter your full shop address in Surat..." required>{{ store.store_address }}</textarea>
                         </div>
                         <div class="col-md-6">
-                            <label class="form-label small fw-bold">Support Contact Number</label>
-                            <input type="text" name="contact_number" value="{{ store.contact_number }}" class="form-control bg-light border-0" required>
+                            <label class="form-label small fw-bold">Primary Contact Number</label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-light border-0">+91</span>
+                                <input type="text" name="contact_number" value="{{ store.contact_number }}" class="form-control bg-light border-0 py-2" required>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label small fw-bold">Support Email</label>
+                            <input type="email" value="{{ request.user.email }}" class="form-control bg-light border-0 py-2" readonly disabled>
                         </div>
                     </div>
 
-                    <div class="mt-4 pt-3 border-top">
-                        <button type="submit" class="btn btn-primary rounded-pill px-5 fw-bold" style="background-color: #3f51b5;">
+                    <div class="mt-5 pt-4 border-top d-flex justify-content-between align-items-center">
+                        <small class="text-muted"><i class="bi bi-info-circle me-1"></i> Changes will be live on the marketplace instantly.</small>
+                        <button type="submit" class="btn btn-primary rounded-pill px-5 py-2 fw-bold btn-save-settings" style="background-color: #3f51b5; border: none;">
                             SAVE CHANGES
                         </button>
                     </div>

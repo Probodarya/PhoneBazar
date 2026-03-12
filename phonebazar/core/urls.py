@@ -41,8 +41,14 @@ urlpatterns = [
   path('dashboard/rating/', views.seller_rating_view, name='seller_rating'),
 #retailer navar
   path('retailer/bulk-upload/', views.bulk_upload_inventory, name='bulk_upload'),
+  
   path('retailer/leads/', views.customer_leads, name='customer_leads'),
   path('retailer/reports/', views.sales_report, name='sales_reports'),
   path('retailer/manage-shop/', views.manage_shop, name='manage_shop'),
+  path('order/invoice/<int:order_id>/', views.download_invoice, name='download_invoice'),
+
+  path('verify-otp/', views.verifyOtpView, name='verify_otp'),
+  path('forgot-password/', views.forgot_password_view, name='forgot_password'),
+  path('reset-password/', views.reset_password_view, name='reset_password'),
 ]
 

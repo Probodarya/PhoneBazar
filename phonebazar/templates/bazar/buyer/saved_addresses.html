@@ -1,92 +1,151 @@
+<style>
+    /* Address Card Styling */
+    .card.rounded-4 {
+        transition: all 0.3s ease;
+        border: 1px solid transparent !important;
+        background: #ffffff;
+    }
+
+    .card.rounded-4:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 12px 25px rgba(46, 175, 125, 0.1) !important;
+        border-color: rgba(46, 175, 125, 0.2) !important;
+    }
+
+    /* Input Styling for Modal */
+    .form-control.bg-light:focus {
+        background-color: #fff !important;
+        box-shadow: 0 0 0 3px rgba(46, 175, 125, 0.1);
+        border: 1px solid #2eaf7d !important;
+    }
+
+    /* Custom Badge for Default */
+    .badge-default {
+        background-color: #eaf7f2;
+        color: #2eaf7d;
+        font-weight: 600;
+        font-size: 0.7rem;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        padding: 6px 12px;
+        border-radius: 50px;
+    }
+
+    /* Action Link Animation */
+    .action-link {
+        transition: opacity 0.2s;
+        font-size: 0.85rem;
+    }
+    .action-link:hover {
+        opacity: 0.7;
+        text-decoration: underline !important;
+    }
+</style>
 {% extends 'base.html' %}
 {% block content %}
-<div class="d-flex">
+<div class="flex-grow-1 p-5 bg-light min-vh-100">
+    <div class="d-flex justify-content-between align-items-center mb-5">
+        <div>
+            <h2 class="fw-bold mb-1">Saved <span style="color: #2eaf7d;">Addresses</span></h2>
+            <p class="text-muted small mb-0">Manage your shipping locations in Surat and beyond.</p>
     
-
-    <div class="flex-grow-1 p-5 bg-light min-vh-100">
-        <div class="d-flex justify-content-between align-items-center mb-4">
-            <h2 class="fw-bold mb-0">Saved <span style="color: #2eaf7d;">Addresses</span></h2>
-            <button class="btn btn-primary rounded-pill px-4" style="background-color: #2eaf7d; border: none;" data-bs-toggle="modal" data-bs-target="#addAddressModal">
-                + Add New Address
-            </button>
-        </div>
-
-        <div class="row g-4">
-            {% for addr in addresses %}
-            <div class="col-md-6">
-                <div class="card border-0 shadow-sm rounded-4 p-4 h-100 position-relative">
-                    {% if addr.is_default %}
-                        <span class="badge position-absolute top-0 end-0 m-3" style="background-color: #eaf7f2; color: #2eaf7d;">Default</span>
-                    {% endif %}
-                    <h6 class="fw-bold mb-1">{{ addr.full_name }}</h6>
-                    <p class="text-muted small mb-3">{{ addr.phone_number }}</p>
-                    <p class="mb-0 text-dark">{{ addr.address_line }},</p>
-                    <p class="mb-3 text-dark">{{ addr.city }} - {{ addr.pincode }}</p> 
-                    
-                     <div class="mt-auto pt-3 border-top d-flex justify-content-between align-items-center">
-                        <div>
-                            <a href="#" class="text-decoration-none small fw-bold me-3" style="color: #2eaf7d;">Edit</a>
-                            <a href="#" class="text-decoration-none small fw-bold text-danger">Remove</a>
-                        </div>
-                        
-                        {% if not addr.is_default %}
-                        <form action="{% url 'set_default_address' addr.id %}" method="POST" class="d-inline">
-                            {% csrf_token %}
-                            <button type="submit" class="btn btn-sm p-0 border-0 small text-muted fw-bold">Set as Default</button>
-                        </form>
-                        {% endif %}
+    <div class="row g-4">
+        {% for addr in addresses %}
+        <div class="col-md-6 col-lg-4">
+            <div class="card border-0 shadow-sm rounded-4 p-4 h-100 position-relative">
+                {% if addr.is_default %}
+                    <span class="badge-default position-absolute top-0 end-0 m-3">Default</span>
+                {% endif %}
+                
+                <div class="d-flex align-items-center mb-3">
+                    <div class="bg-light rounded-circle p-2 me-3">
+                        <i class="bi bi-house-door text-muted"></i>
                     </div>
+                    <h6 class="fw-bold mb-0">{{ addr.full_name }}</h6>
+                </div>
+
+                <div class="mb-4">
+                    <p class="text-muted small mb-2"><i class="bi bi-telephone me-2"></i>{{ addr.phone_number }}</p>
+                    <p class="mb-0 text-dark small" style="line-height: 1.6;">
+                        {{ addr.address_line }}<br>
+                        <strong>{{ addr.city }}, {{ addr.pincode }}</strong>
+                    </p>
+                </div>
+                
+                <div class="mt-auto pt-3 border-top d-flex justify-content-between align-items-center">
+                    <div>
+                        <a href="#" class="action-link text-decoration-none fw-bold me-3" style="color: #2eaf7d;">Edit</a>
+                        <a href="#" class="action-link text-decoration-none fw-bold text-danger">Remove</a>
+                    </div>
+                    
+                    {% if not addr.is_default %}
+                    <form action="{% url 'set_default_address' addr.id %}" method="POST" class="m-0">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-link p-0 text-decoration-none small text-muted fw-bold action-link" style="font-size: 0.75rem;">
+                            Set Default
+                        </button>
+                    </form>
+                    {% endif %}
                 </div>
             </div>
-            {% empty %}
-            <div class="col-12 text-center py-5">
-                <div class="mb-3" style="font-size: 3rem;">📍</div>
-                <p class="text-muted">No addresses saved yet. Add one for faster checkouts.</p>
-            </div>
-            {% endfor %}
         </div>
+        {% empty %}
+        <div class="col-12 text-center py-5">
+            <div class="bg-white d-inline-block p-5 rounded-5 shadow-sm">
+                <i class="bi bi-geo-alt display-1 text-muted opacity-25"></i>
+                <p class="mt-3 text-muted">Your address book is empty.</p>
+                <button class="btn btn-outline-success rounded-pill px-4 mt-2" data-bs-toggle="modal" data-bs-target="#addAddressModal">
+                    Add your first address
+                </button>
+            </div>
+        </div>
+        {% endfor %}
     </div>
 </div>
 
 <div class="modal fade" id="addAddressModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content border-0 shadow rounded-4">
-            <div class="modal-header border-0 pb-0 px-4 pt-4">
-                <h5 class="fw-bold">Add New Address</h5>
-                
+        <div class="modal-content border-0 shadow-lg rounded-4 overflow-hidden">
+            <div class="modal-header border-0 p-4 pb-0">
+                <h5 class="fw-bold mb-0">New Shipping Address</h5>
+               
             </div>
             <form method="POST">
                 {% csrf_token %}
                 <div class="modal-body p-4">
-                    <div class="mb-3">
-                        <input type="text" name="full_name" class="form-control bg-light border-0" placeholder="Full Name" required>
-                    </div>
-                    <div class="mb-3">
-                        <input type="text" name="phone_number" class="form-control bg-light border-0" placeholder="Phone Number" required>
-                    </div>
-                    <div class="mb-3">
-                        <textarea name="address_line" class="form-control bg-light border-0" rows="3" placeholder="Flat, House no., Building, Company, Apartment" required></textarea>
-                    </div>
-                                    <div class="modal-body p-4">
-                        <div class="row">
-                            <div class="col-md-6 mb-3">
-                                <input type="text" name="city" class="form-control bg-light border-0" placeholder="City" required>
-                            </div>
-                            <div class="col-md-6 mb-3">
-                                <input type="text" name="pincode" class="form-control bg-light border-0" placeholder="Pincode" required>
-                            </div>
+                    <div class="row g-3">
+                        <div class="col-12">
+                            <label class="small fw-bold text-muted mb-1">Receiver Name</label>
+                            <input type="text" name="full_name" class="form-control bg-light border-0 py-2" placeholder="e.g. Anjali" required>
                         </div>
-
-                        <div class="form-check mt-2">
-                            <input class="form-check-input" type="checkbox" name="is_default" id="setDefault">
-                            <label class="form-check-label small text-muted" for="setDefault">
-                                Make this my default shipping address
-                            </label>
+                        <div class="col-12">
+                            <label class="small fw-bold text-muted mb-1">Contact Number</label>
+                            <input type="text" name="phone_number" class="form-control bg-light border-0 py-2" placeholder="10-digit mobile number" required>
+                        </div>
+                        <div class="col-12">
+                            <label class="small fw-bold text-muted mb-1">Address Details</label>
+                            <textarea name="address_line" class="form-control bg-light border-0" rows="3" placeholder="House No, Street, Locality..." required></textarea>
+                        </div>
+                        <div class="col-6">
+                            <label class="small fw-bold text-muted mb-1">City</label>
+                            <input type="text" name="city" class="form-control bg-light border-0 py-2" placeholder="Surat" required>
+                        </div>
+                        <div class="col-6">
+                            <label class="small fw-bold text-muted mb-1">Pincode</label>
+                            <input type="text" name="pincode" class="form-control bg-light border-0 py-2" placeholder="395001" required>
+                        </div>
+                        <div class="col-12">
+                            <div class="form-check form-switch mt-2">
+                                <input class="form-check-input" type="checkbox" name="is_default" id="setDefault">
+                                <label class="form-check-label small text-muted" for="setDefault">Set as default address</label>
+                            </div>
                         </div>
                     </div>
                 </div>
                 <div class="modal-footer border-0 p-4 pt-0">
-                    <button type="submit" class="btn btn-primary w-100 rounded-pill fw-bold" style="background-color: #2eaf7d; border: none;">SAVE ADDRESS</button>
+                    <button type="submit" class="btn btn-primary w-100 rounded-pill py-3 fw-bold shadow-sm" style="background-color: #2eaf7d; border: none;">
+                        SAVE ADDRESS
+                    </button>
                 </div>
             </form>
         </div>

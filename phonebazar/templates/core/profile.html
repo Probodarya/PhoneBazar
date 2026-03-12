@@ -41,6 +41,12 @@
                 <td style="padding: 15px 0; font-weight: 600;">Surat, Gujarat</td>
             </tr>
             <tr>
+                <td style="padding: 15px 0; color: #888;">Account Status</td>
+                <td style="padding: 15px 0; font-weight: 600; color: {% if user.status == 'active' %}#28a745{% elif user.status == 'inactive' %}#ffc107{% elif user.status == 'blocked' %}#dc3545{% else %}#6c757d{% endif %};">
+                    {{ user.get_status_display }}
+                </td>
+            </tr>
+            <tr>
                 <td style="padding: 15px 0; color: #888;">Joined PhoneBazar</td>
                 <td style="padding: 15px 0; font-weight: 600;">{{ user.date_joined|date:"M d, Y" }}</td>
             </tr>

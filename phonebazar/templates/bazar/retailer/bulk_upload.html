@@ -1,33 +1,127 @@
-{% extends 'base.html' %}
+<style>
+    /* Drag & Drop Zone Styling */
+    .upload-zone {
+        border: 2px dashed #dee2e6;
+        background-color: #f8fafc;
+        transition: all 0.3s ease;
+        cursor: pointer;
+        position: relative;
+    }
+
+    .upload-zone:hover {
+        border-color: #3f51b5;
+        background-color: #f0f4ff;
+    }
+
+    /* Pulse Effect for Icon */
+    .pulse-icon {
+        animation: pulse 2s infinite;
+        color: #3f51b5;
+    }
+
+    @keyframes pulse {
+        0% { transform: scale(1); opacity: 1; }
+        50% { transform: scale(1.1); opacity: 0.7; }
+        100% { transform: scale(1); opacity: 1; }
+    }
+
+    /* Hide default file input but keep it functional */
+    .file-input-hidden {
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        top: 0;
+        left: 0;
+        opacity: 0;
+        cursor: pointer;
+    }
+
+    /* Template Link Styling */
+    .template-card {
+        background: #fffbe6;
+        border: 1px solid #ffe58f;
+        border-radius: 12px;
+    }
+</style>
+{% extends "base.html" %}
 {% block content %}
-
-
-<div class="container mt-5">
+<div class="container py-5">
     <div class="row justify-content-center">
-        <div class="col-md-8">
-            <div class="card border-0 shadow-sm rounded-4 p-5 text-center">
-                <i class="bi bi-cloud-arrow-up display-1 text-primary mb-4"></i>
-                <h2 class="fw-bold">Bulk Inventory Upload</h2>
-                <p class="text-muted mb-4">Upload a .csv file to add multiple devices to your Surat store instantly.</p>
-                
-                <div class="alert alert-light border mb-4">
-                    <small class="text-dark">
-                        <i class="bi bi-info-circle me-1"></i> 
-                        Don't have a file? <a href="#" class="fw-bold text-primary">Download CSV Template</a>
-                    </small>
-                </div>
+        <div class="col-lg-7">
+            <div class="text-center mb-5">
+                <h2 class="fw-bold">Bulk <span class="text-primary">Inventory</span> Upload</h2>
+                <p class="text-muted">Scale your Surat tech store by importing multiple listings at once.</p>
+            </div>
 
-                <form method="POST" enctype="multipart/form-data">
-                    {% csrf_token %}
-                    <div class="mb-4">
-                        <input type="file" name="file" class="form-control form-control-lg bg-light border-0" required>
+            <div class="card border-0 shadow-lg rounded-4 overflow-hidden">
+                <div class="card-body p-5">
+                    
+                    <div class="template-card p-3 mb-4 d-flex align-items-center">
+                        <div class="bg-warning rounded-circle p-2 me-3 shadow-sm">
+                            <i class="bi bi-file-earmark-spreadsheet text-white"></i>
+                        </div>
+                        <div>
+                            <small class="text-muted d-block">Required Format: .CSV</small>
+                            <a href="#" class="fw-bold text-dark text-decoration-none small">
+                                Download PhoneBazar CSV Template <i class="bi bi-download ms-1"></i>
+                            </a>
+                        </div>
                     </div>
-                    <button type="submit" class="btn btn-primary btn-lg rounded-pill px-5 fw-bold" style="background-color: #3f51b5;">
-                        IMPORT INVENTORY
-                    </button>
-                </form>
+
+                    <form method="POST" enctype="multipart/form-data" id="uploadForm">
+                        {% csrf_token %}
+                        
+                        <div class="upload-zone rounded-4 p-5 text-center mb-4 border-2">
+                            <input type="file" name="file" class="file-input-hidden" id="fileInput" required>
+                            
+                            <div id="uploadContent">
+                                <i class="bi bi-cloud-arrow-up pulse-icon display-2 mb-3 d-block"></i>
+                                <h5 class="fw-bold mb-1" id="fileLabel">Click or Drag CSV File Here</h5>
+                                <p class="text-muted small">Supports: Brand, Model, Price, IMEI, Condition</p>
+                            </div>
+                            
+                            <div id="filePreview" class="d-none">
+                                <i class="bi bi-file-check-fill display-3 text-success mb-2 d-block"></i>
+                                <h6 class="fw-bold text-success" id="selectedFileName">File Ready!</h6>
+                                <button type="button" class="btn btn-sm btn-link text-muted" onclick="resetFile()">Change File</button>
+                            </div>
+                        </div>
+
+                        <div class="d-grid">
+                            <button type="submit" class="btn btn-primary btn-lg rounded-pill py-3 fw-bold shadow-sm" style="background-color: #3f51b5;">
+                                <i class="bi bi-lightning-fill me-2"></i> START IMPORT PROCESS
+                            </button>
+                        </div>
+                    </form>
+                    
+                    <div class="mt-4 text-center">
+                        <small class="text-muted"><i class="bi bi-shield-lock me-1"></i> All IMEI numbers are encrypted and verified upon upload.</small>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
 </div>
+
+<script>
+    const fileInput = document.getElementById('fileInput');
+    const fileLabel = document.getElementById('fileLabel');
+    const uploadContent = document.getElementById('uploadContent');
+    const filePreview = document.getElementById('filePreview');
+    const selectedFileName = document.getElementById('selectedFileName');
+
+    fileInput.addEventListener('change', function() {
+        if (this.files.length > 0) {
+            uploadContent.classList.add('d-none');
+            filePreview.classList.remove('d-none');
+            selectedFileName.textContent = this.files[0].name;
+        }
+    });
+
+    function resetFile() {
+        fileInput.value = "";
+        uploadContent.classList.remove('d-none');
+        filePreview.classList.add('d-none');
+    }
+</script>
 {% endblock %}

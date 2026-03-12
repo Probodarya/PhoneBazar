@@ -1,48 +1,152 @@
+<style>
+     /* Global Styles */
+    body { background-color: #f9fafb; }
+
+    /* Bento-style Specification Blocks */
+    .detail-bento {
+        background: #ffffff;
+        border-radius: 20px;
+        padding: 24px;
+        border: 1px solid #e5e7eb;
+    }
+
+    /* Cashify-style Price Section */
+    .price-section {
+        color: #1a237e; /* PhoneBazar Indigo */
+        font-size: 2.2rem;
+        font-weight: 800;
+        margin-bottom: 5px;
+    }
+
+    /* Certification Strip */
+    .cert-strip {
+        background: linear-gradient(90deg, #fff8e1 0%, #ffffff 100%);
+        border-left: 5px solid #ffc107; /* PhoneBazar Gold */
+        padding: 15px;
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+    }
+
+
+    /* Remove default link underlines */
+    .btn, .btn:hover {
+        text-decoration: none !important;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    /* Fixed Row for Desktop */
+    .action-row {
+        display: flex;
+        gap: 12px; /* Adds space between buttons */
+        margin-top: 20px;
+        flex-wrap: wrap; /* Prevents overlapping on small screens */
+    }
+
+    /* Ensure buttons don't shrink */
+    .btn-buy {
+        flex: 2; /* Buy Now is wider */
+        background-color: #1a237e;
+        color: white !important;
+        border-radius: 12px;
+        padding: 12px 24px;
+        font-weight: 700;
+        border: none;
+        transition: transform 0.2s, box-shadow 0.2s;
+    }
+
+    .btn-secondary-action {
+        flex: 1; /* Cart/Wish are smaller */
+        background-color: #ffffff;
+        color: #1a237e !important;
+        border: 2px solid #1a237e;
+        border-radius: 12px;
+        padding: 12px;
+        font-weight: 600;
+    }
+
+    /* Hover Effects */
+    .btn-buy:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 8px 15px rgba(26, 35, 126, 0.3);
+        background-color: #0d124a;
+    }
+
+</style>
+
 {% extends 'base.html' %}
 {% block content %}
-<div class="container mt-5">
-    <div class="row">
-        <div class="col-md-6 text-center">
-            {% if phone.image %}
-                <img src="{{ phone.image.url }}" class="img-fluid rounded shadow-sm" style="max-height: 500px;">
-            {% endif %}
+<div class="container py-5">
+    <div class="row g-5">
+        <div class="col-md-6">
+            <div class="sticky-top" style="top: 2rem;">
+                <div class="bg-white p-4 rounded-4 shadow-sm text-center">
+                    {% if phone.image %}
+                        <img src="{{ phone.image.url }}" class="img-fluid" style="max-height: 550px; object-fit: contain;">
+                    {% endif %}
+                </div>
+            </div>
         </div>
 
         <div class="col-md-6">
-            <nav aria-label="breadcrumb">
-                <ol class="breadcrumb">
-                    <li class="breadcrumb-item"><a href="{% url 'marketplace_home' %}">Marketplace</a></li>
-                    <li class="breadcrumb-item active">{{ phone.brand }}</li>
+            <nav aria-label="breadcrumb" class="mb-3">
+                <ol class="breadcrumb small">
+                    <li class="breadcrumb-item"><a href="{% url 'marketplace_home' %}" class="text-decoration-none text-muted">Marketplace</a></li>
+                    <li class="breadcrumb-item active fw-bold" style="color: #1a237e;">{{ phone.brand }}</li>
                 </ol>
             </nav>
-            
-            <h1 class="fw-bold">{{ phone.brand }} {{ phone.model_name }}</h1>
-            <h2 class="text-primary mb-4">₹{{ phone.price }}</h2>
 
-            <div class="card border-primary mb-4">
-                <div class="card-header bg-primary text-white">
-                    <i class="bi bi-shield-check"></i> PhoneBazar Certified Report
+            <h1 class="display-6 fw-bold text-dark mb-1">{{ phone.brand }} {{ phone.model_name }}</h1>
+            
+            <div class="mb-3">
+                <div class="seller-pill">
+                    <span class="text-warning me-2">
+                        {% for i in "12345" %}
+                            <i class="bi {% if forloop.counter <= phone.seller.average_rating %}bi-star-fill{% else %}bi-star{% endif %}"></i>
+                        {% endfor %}
+                    </span>
+                    <span class="fw-bold">{{ phone.seller.first_name|default:"Verified Seller" }}</span>
+                    <span class="text-muted ms-2">({{ phone.seller.received_feedback.count }} reviews)</span>
                 </div>
-                <div class="card-body">
+            </div>
+
+            <div class="price-section">₹{{ phone.price }}</div>
+            <p class="text-success small fw-bold mb-4"><i class="bi bi-tag-fill"></i> Free delivery in Surat, Gujarat</p>
+
+            <div class="cert-strip mb-4">
+                <div class="me-3 fs-3 text-warning">
+                    <i class="bi bi-patch-check-fill"></i>
+                </div>
+                <div>
+                    <h6 class="mb-0 fw-bold">PhoneBazar Certified Device</h6>
                     {% if phone.test_report %}
-                        <p class="mb-1"><strong>Condition:</strong> {{ phone.test_report.functional_status }}</p>
-                        <p class="mb-0"><strong>Verified Valuation:</strong> ₹{{ phone.test_report.valuation_price }}</p>
-                        <hr>
-                        <span class="badge bg-success">Passed All Tests</span>
+                        <small class="text-muted">Condition: <span class="text-dark fw-bold">{{ phone.test_report.functional_status }}</span> • Valuation: ₹{{ phone.test_report.valuation_price }}</small>
                     {% else %}
-                        <p class="text-muted italic">Diagnostic details pending for this device.</p>
+                        <small class="text-muted italic">Full diagnostic report pending.</small>
                     {% endif %}
                 </div>
             </div>
 
-            <p class="text-muted">{{ phone.description }}</p>
-
-            <div class="d-grid gap-2">
-                <a href="{% url 'create_order' phone.id %}" class="btn btn-primary btn-lg">Buy Now</a>
-                <a href="{% url 'marketplace_home' %}" class="btn btn-outline-secondary">Back to Gallery</a>
-                <a href="{% url 'add_to_cart' phone.id %}" class="btn btn-outline-primary">Add to Cart</a>
-                <a href="{% url 'add_to_wishlist' phone.id %}" class="btn btn-outline-secondary">Add to Wishlist</a>
+            <div class="detail-bento mb-4 shadow-sm">
+                <h6 class="fw-bold mb-3">Expert Description</h6>
+                <p class="text-secondary small mb-0" style="line-height: 1.6;">{{ phone.description }}</p>
             </div>
+
+     <div class="action-row">
+    <a href="{% url 'create_order' phone.id %}" class="btn btn-buy">
+        Buy Now
+    </a>
+
+    <a href="{% url 'add_to_cart' phone.id %}" class="btn btn-secondary-action">
+        <i class="bi bi-cart"></i> Add to Cart
+    </a>
+
+    <a href="{% url 'add_to_wishlist' phone.id %}" class="btn btn-secondary-action">
+        <i class="bi bi-heart"></i> add to Wishlist
+    </a>
+</div>
         </div>
     </div>
 </div>

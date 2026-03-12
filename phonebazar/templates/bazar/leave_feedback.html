@@ -1,22 +1,95 @@
-{% extends 'base.html' %}
+<style>
+    /* Global Field Styling */
+    .premium-input {
+        background-color: #fffdf5 !important;
+        border: 2px solid #ffecb3 !important;
+        border-radius: 12px !important;
+        padding: 12px 15px !important;
+        font-weight: 500;
+        color: #5d4037;
+        transition: all 0.3s ease;
+    }
+
+    .premium-input:focus {
+        background-color: #ffffff !important;
+        border-color: #ffc107 !important;
+        box-shadow: 0 0 0 4px rgba(255, 193, 7, 0.15) !important;
+        outline: none;
+    }
+
+    /* Custom labels with Indigo accents */
+    .field-label {
+        font-size: 0.75rem;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        color: #856404;
+        margin-bottom: 8px;
+        display: block;
+    }
+
+    /* Dropdown Arrow for Star Select */
+    select.premium-input {
+        appearance: none;
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='%23856404' viewBox='0 0 16 16'%3E%3Cpath d='M7.247 11.14 2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z'/%3E%3C/svg%3E");
+        background-repeat: no-repeat;
+        background-position: right 15px center;
+    }
+</style>
+<{% extends "base.html" %}
 {% block content %}
-<div class="container mt-5">
-    <div class="card shadow-sm border-0 mx-auto" style="max-width: 600px;">
-        <div class="card-body p-4">
-            <h3 class="fw-bold mb-3">Rate Your Purchase</h3>
-            <p class="text-muted">Item: <strong>{{ order.phone_listing.brand }} {{ order.phone_listing.model_name }}</strong></p>
-            <hr>
-            <form method="POST">
-                {% csrf_token %}
-                {% for field in form %}
-                    <div class="mb-3">
-                        <label class="form-label fw-bold">{{ field.label }}</label>
-                        {{ field }}
-                        {% if field.help_text %}<small class="text-muted d-block">{{ field.help_text }}</small>{% endif %}
-                    </div>
-                {% endfor %}
-                <button type="submit" class="btn btn-warning w-100 fw-bold">Submit Review</button>
-            </form>
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6 col-lg-5">
+            <div class="card border-0 shadow-lg rounded-4 overflow-hidden">
+                
+                <div class="p-4 text-center bg-white border-bottom">
+                    <h5 class="fw-bold mb-0">Verified Purchase Review</h5>
+                    <small class="text-muted">{{ order.phone_listing.brand }} {{ order.phone_listing.model_name }}</small>
+                </div>
+
+                <div class="card-body p-4 p-lg-5">
+                    <form method="POST">
+                        {% csrf_token %}
+
+                        {% for field in form %}
+                            <div class="mb-4">
+                                <label class="field-label fw-bold">{{ field.label }}</label>
+
+                                {% if "rating" in field.name.lower %}
+                                    <select name="{{ field.name }}" class="form-select premium-input" required>
+                                        <option value="" disabled selected>Select Stars...</option>
+                                        <option value="5">⭐⭐⭐⭐⭐ Excellent (5/5)</option>
+                                        <option value="4">⭐⭐⭐⭐ Very Good (4/5)</option>
+                                        <option value="3">⭐⭐⭐ Good / Average (3/5)</option>
+                                        <option value="2">⭐⭐ Fair (2/5)</option>
+                                        <option value="1">⭐ Poor (1/5)</option>
+                                    </select>
+                                {% else %}
+                                    <div class="feedback-field-wrapper">
+                                        {% if field.field.widget.input_type == 'textarea' %}
+                                            <textarea name="{{ field.name }}" class="form-control premium-input" rows="4" placeholder="Share your experience with this device...">{{ field.value|default_if_none:"" }}</textarea>
+                                        {% else %}
+                                            <input type="{{ field.field.widget.input_type }}" name="{{ field.name }}" value="{{ field.value|default_if_none:"" }}" class="form-control premium-input">
+                                        {% endif %}
+                                    </div>
+                                {% endif %}
+
+                                {% if field.help_text %}
+                                    <div class="form-text small opacity-75 mt-2">{{ field.help_text }}</div>
+                                {% endif %}
+                                
+                                {% for error in field.errors %}
+                                    <div class="text-danger small mt-1 fw-bold">{{ error }}</div>
+                                {% endfor %}
+                            </div>
+                        {% endfor %}
+
+                        <button type="submit" class="btn btn-warning w-100 py-3 rounded-pill fw-bold shadow-sm mt-3" style="background: #ffc107; border: none;">
+                            SUBMIT REVIEW
+                        </button>
+                    </form>
+                </div>
+            </div>
         </div>
     </div>
 </div>

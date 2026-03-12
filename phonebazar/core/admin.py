@@ -104,3 +104,4 @@ from .models import Wishlist
 class WishlistAdmin(admin.ModelAdmin):
     list_display = ('user', 'phone_listing', 'created_at')
     list_filter = ('created_at',)
+

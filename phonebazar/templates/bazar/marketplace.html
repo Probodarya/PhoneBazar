@@ -1,37 +1,141 @@
+<style>
+    /* Premium Background */
+    body { background: #f8fafc; }
+
+    /* Glass-Effect Card */
+    .phone-card {
+        background: #ffffff;
+        border-radius: 28px;
+        border: 1px solid #edf2f7;
+        transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
+        overflow: hidden;
+    }
+
+    .phone-card:hover {
+        transform: translateY(-10px);
+        box-shadow: 0 20px 40px rgba(26, 35, 126, 0.08) !important;
+        border-color: #ffc107; /* Gold highlight on hover */
+    }
+
+    /* Product Image Wrapper */
+    .product-img-box {
+        background: #fff;
+        height: 220px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 20px;
+    }
+
+    /* Price and Title Styling */
+    .price-text {
+        color: #1a237e; /* PhoneBazar Indigo */
+        font-size: 1.3rem;
+        font-weight: 800;
+    }
+
+    /* Verification Badge */
+    .badge-surat {
+        background: #fff8e1;
+        color: #d4a017;
+        font-size: 0.7rem;
+        letter-spacing: 0.5px;
+        border: 1px solid #ffecb3;
+    }
+
+    /* Action Button */
+    .btn-indigo-outline {
+        border: 2px solid #1a237e;
+        color: #1a237e;
+        border-radius: 14px;
+        font-weight: 700;
+        transition: 0.3s;
+    }
+
+    .btn-indigo-outline:hover {
+        background: #1a237e;
+        color: #fff;
+    }
+/* Star Colors & Sizing */
+.text-warning {
+    color: #ffc107 !important; /* PhoneBazar Gold */
+}
+
+.text-light-gray {
+    color: #dee2e6; /* Subtle gray for empty stars */
+}
+
+.bi-star-fill, .bi-star {
+    font-size: 0.85rem;
+    margin-right: 1px;
+}
+
+/* Tooltip style on hover to see exact rating */
+.text-warning:hover {
+    cursor: pointer;
+    filter: brightness(1.1);
+}
+</style>
+
 {% extends 'base.html' %}
 {% block content %}
-<div class="container mt-4">
-    <h2 class="mb-4">Verified Devices in Surat</h2>
+<div class="container py-5">
+    <div class="row mb-5 align-items-center">
+        <div class="col-md-7">
+            <h2 class="fw-bold display-6 mb-0">Verified Devices</h2>
+            <p class="text-muted">Trusted second-hand tech in Surat, Gujarat</p>
+        </div>
+        <div class="col-md-5 text-md-end">
+            <span class="badge bg-white text-dark shadow-sm p-3 px-4 rounded-pill border">
+                <i class="bi bi-shield-fill-check text-success me-2"></i> Surat Certified Inventory
+            </span>
+        </div>
+    </div>
+
     <div class="row">
-        <p class="small text-muted">
-    Seller Rating: 
-    {% if phone.seller.received_feedback.exists %}
-        {{ phone.seller.received_feedback.all|length }} reviews
-    {% else %}
-        New Seller
-    {% endif %}
-</p>
         {% for phone in phones %}
-        <div class="col-md-4 mb-4">
-            <div class="card h-100 shadow-sm border-0">
-                {% if phone.image %}
-                    <img src="{{ phone.image.url }}" class="card-img-top" alt="phone" style="height: 200px; object-fit: contain;">
-                {% endif %}
-                <div class="card-body">
-                    <div class="d-flex justify-content-between">
-                        <h5 class="card-title">{{ phone.brand }} {{ phone.model_name }}</h5>
-                        <span class="text-primary fw-bold">₹{{ phone.price }}</span>
+        <div class="col-lg-4 col-md-6 mb-4">
+            <div class="card phone-card h-100 shadow-sm border-0">
+                
+                <div class="product-img-box">
+                    {% if phone.image %}
+                        <img src="{{ phone.image.url }}" class="img-fluid" style="max-height: 100%; object-fit: contain;">
+                    {% else %}
+                        <div class="text-muted small">No Image Available</div>
+                    {% endif %}
+                </div>
+
+                <div class="card-body p-4">
+                    <div class="d-flex justify-content-between mb-3">
+                        <span class="badge badge-surat rounded-pill px-3">
+                            <i class="bi bi-patch-check-fill me-1"></i> VERIFIED
+                        </span>
+                        <small class="text-muted fw-bold">
+                            <i class="bi bi-star-fill text-warning"></i>
+                            {% if phone.seller.received_feedback.exists %}
+                                {{ phone.seller.received_feedback.count }}
+                            {% else %}
+                                New
+                            {% endif %}
+                        </small>
                     </div>
-                    <p class="text-muted small">Tested & Certified by PhoneBazar</p>
-                    <a href="{% url 'phone_detail' phone.id %}" class="btn btn-outline-primary w-100">View Details</a>
+
+                    <h5 class="fw-bold text-dark mb-1">{{ phone.brand }} {{ phone.model_name }}</h5>
+                    <p class="price-text mb-4">₹{{ phone.price }}</p>
+
+                    <a href="{% url 'phone_detail' phone.id %}" class="btn btn-indigo-outline w-100">
+                        View Detailed Specs
+                    </a>
+                    
                 </div>
             </div>
         </div>
         {% empty %}
         <div class="col-12 text-center py-5">
-            <p class="text-muted">No verified phones available right now. Check back soon!</p>
+            <i class="bi bi-search display-1 text-muted opacity-25"></i>
+            <p class="text-muted mt-3">No verified phones in Surat yet. Sell yours today!</p>
         </div>
         {% endfor %}
     </div>
 </div>
-{% endblock %}  
+{% endblock %}

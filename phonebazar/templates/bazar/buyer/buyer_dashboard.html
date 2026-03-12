@@ -1,95 +1,165 @@
-{% extends 'base.html' %}
-{% block content %}
-<div class="container mt-4">
-    <h3 class="fw-bold mb-4">My Purchases</h3>
+<style>
+    /* Order Card Elevation */
+    .card.order-card {
+        transition: all 0.3s ease;
+        border-radius: 20px !important;
+    }
+    .card.order-card:hover {
+        transform: scale(1.01);
+        box-shadow: 0 10px 20px rgba(0,0,0,0.05) !important;
+    }
 
-    <div class="row mb-4">
-        <div class="col-md-4">
-            <div class="card border-0 shadow-sm p-3 bg-light text-center">
-                <small class="text-uppercase text-muted fw-bold">Active Orders</small>
-                <h4 class="mb-0 text-primary">{{ stats.active }}</h4>
-            </div>
+    /* Progress Tracker Dots */
+    .status-dot {
+        width: 12px;
+        height: 12px;
+        border-radius: 50%;
+        display: inline-block;
+        margin-right: 8px;
+    }
+    .dot-escrow { background-color: #0dcaf0; box-shadow: 0 0 8px #0dcaf0; }
+    .dot-shipped { background-color: #0d6efd; box-shadow: 0 0 8px #0d6efd; }
+    .dot-delivered { background-color: #198754; box-shadow: 0 0 8px #198754; }
+
+    /* Summary Stat Cards */
+    .stat-box {
+        border-radius: 16px;
+        border: 1px solid #f1f5f9 !important;
+    }
+  
+    /* Base Styling for the Outline Button */
+    .btn-outline-primary.rounded-pill {
+        border: 2px solid #1a237e; /* PhoneBazar Indigo */
+        color: #1a237e;
+        background: transparent;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        font-size: 0.85rem;
+        letter-spacing: 0.3px;
+    }
+
+    /* Hover State: Fills with Indigo and adds Glow */
+    .btn-outline-primary.rounded-pill:hover {
+        background-color: #1a237e !important;
+        color: #ffffff !important;
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(26, 35, 126, 0.2);
+    }
+
+    /* Icon Animation: Turns "PDF Red" on hover */
+    .btn-outline-primary:hover .bi-file-earmark-pdf {
+        color: #ff4d4d; /* Bright Red to signify PDF */
+        transition: color 0.2s ease;
+    }
+
+    /* Active/Click effect */
+    .btn-outline-primary:active {
+        transform: scale(0.96);
+    }
+
+</style>
+<{% extends "base.html" %}  
+{% block content %}
+<div class="container py-5">
+    <div class="d-flex justify-content-between align-items-center mb-5">
+        <div>
+            <h2 class="fw-bold mb-0">My <span class="text-primary">Purchases</span></h2>
+            <p class="text-muted mb-0">Tracking your tech investments in Surat</p>
         </div>
-        <div class="col-md-4">
-            <div class="card border-0 shadow-sm p-3 bg-light text-center">
-                <small class="text-uppercase text-muted fw-bold">Total Investment</small>
-                <h4 class="mb-0 text-success">₹{{ stats.spent }}</h4>
+        <div class="d-flex gap-3">
+            <div class="card stat-box shadow-sm p-3 bg-white">
+                <small class="text-uppercase text-muted fw-bold d-block mb-1" style="font-size: 0.6rem;">Active</small>
+                <h5 class="mb-0 fw-bold">{{ stats.active }}</h5>
+            </div>
+            <div class="card stat-box shadow-sm p-3 bg-white">
+                <small class="text-uppercase text-muted fw-bold d-block mb-1" style="font-size: 0.6rem;">Total Spent</small>
+                <h5 class="mb-0 fw-bold text-success">₹{{ stats.spent }}</h5>
             </div>
         </div>
     </div>
 
     {% for order in orders %}
-    <div class="card shadow-sm border-0 mb-4">
-        <div class="card-body">
+    <div class="card order-card shadow-sm border-0 mb-4 overflow-hidden">
+        <div class="card-body p-4">
             <div class="row align-items-center">
-                <div class="col-md-2 text-center">
+                <div class="col-lg-1 col-md-2 text-center mb-3 mb-md-0">
                     {% if order.phone_listing.image %}
-                        <img src="{{ order.phone_listing.image.url }}" class="img-fluid rounded border shadow-sm" style="max-height: 100px; object-fit: contain;">
+                        <img src="{{ order.phone_listing.image.url }}" class="img-fluid rounded-3 border" style="width: 80px; height: 80px; object-fit: contain; background: #fff;">
                     {% else %}
-                        <div class="bg-light rounded border py-4 text-muted small">No Image</div>
+                        <div class="bg-light rounded-3 border py-3 text-muted small">No Image</div>
                     {% endif %}
                 </div>
 
-                <div class="col-md-4">
-                    <h5 class="mb-1 fw-bold">{{ order.phone_listing.brand }} {{ order.phone_listing.model_name }}</h5>
-                    <p class="text-muted small mb-1">Order: #PB-{{ order.id }}</p>
-                    <p class="text-muted small mb-0">Date: {{ order.created_at|date:"d M Y" }}</p>
-                </div>
-
-                <div class="col-md-3">
-                    <span class="badge 
-                        {% if order.status == 'escrow' %}bg-info
-                        {% elif order.status == 'shipped' %}bg-primary
-                        {% elif order.status == 'delivered' %}bg-success
-                        {% elif order.status == 'completed' %}bg-dark
-                        {% else %}bg-secondary{% endif %} rounded-pill px-3">
-                        {{ order.get_status_display }}
-                    </span>
+                <div class="col-lg-4 col-md-4">
+                    <h6 class="fw-bold text-dark mb-1">{{ order.phone_listing.brand }} {{ order.phone_listing.model_name }}</h6>
+                    <div class="d-flex align-items-center mb-2">
+                        <span class="badge bg-light text-muted border fw-normal me-2">#PB-{{ order.id }}</span>
+                        <small class="text-muted">{{ order.created_at|date:"d M Y" }}</small>
+                    </div>
                     {% if order.tracking_number %}
-                        <div class="mt-2 small text-muted">
-                            <i class="bi bi-truck"></i> {{ order.tracking_number }}
-                        </div>
+                        <small class="text-primary fw-bold"><i class="bi bi-truck me-1"></i> {{ order.tracking_number }}</small>
                     {% endif %}
                 </div>
 
-                <div class="col-md-3 text-end">
-                    <h5 class="text-primary fw-bold mb-2">₹{{ order.total_price }}</h5>
-                    
-                    <div class="d-grid gap-2">
-                        {% if order.status == 'delivered' %}
-                            <form action="{% url 'confirm_delivery' order.id %}" method="POST">
-                                {% csrf_token %}
-                                <button type="submit" class="btn btn-sm btn-success w-100" 
-                                        onclick="return confirm('Confirm you received the device safely in Surat?')">
-                                    Confirm Receipt
-                                </button>
-                            </form>
-
-                        {% elif order.status == 'completed' %}
-                            {% if not order.feedback %}
-                                <a href="{% url 'leave_feedback' order.id %}" class="btn btn-sm btn-outline-warning w-100">
-                                    <i class="bi bi-star"></i> Rate Seller
-                                </a>
-                            {% else %}
-                                <div class="badge bg-light text-warning border w-100">
-                                    Rating: {{ order.feedback.average_rating }} ⭐
-                                </div>
-                            {% endif %}
-                        
-                        {% else %}
-                            <button class="btn btn-sm btn-light disabled w-100">In Progress...</button>
+                <div class="col-lg-4 col-md-3 text-center text-md-start">
+                    <div class="mb-1">
+                        <span class="status-dot dot-{{ order.status }}"></span>
+                        <span class="fw-bold text-capitalize">{{ order.get_status_display }}</span>
+                    </div>
+                    <div class="progress mt-2" style="height: 6px; border-radius: 10px; background-color: #f1f5f9;">
+                        {% if order.status == 'escrow' %}
+                            <div class="progress-bar bg-info" style="width: 25%"></div>
+                        {% elif order.status == 'shipped' %}
+                            <div class="progress-bar bg-primary" style="width: 60%"></div>
+                        {% elif order.status == 'delivered' or order.status == 'completed' %}
+                            <div class="mt-2">
+                            <a href="{% url 'download_invoice' order.id %}" 
+                            class="btn btn-sm btn-outline-primary w-100 rounded-pill py-2 fw-bold d-flex align-items-center justify-content-center"
+                            title="Download official PhoneBazar Receipt">
+                                <i class="bi bi-file-earmark-pdf me-2 fs-6"></i> 
+                                Download Invoice
+                            </a>
+                        </div>   
                         {% endif %}
                     </div>
+                  
+                </div>
+
+                <div class="col-lg-3 col-md-3 text-end">
+                    <h4 class="fw-bold mb-3">₹{{ order.total_price }}</h4>
+                    
+                    {% if order.status == 'delivered' %}
+                        <form action="{% url 'confirm_delivery' order.id %}" method="POST">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-success btn-sm w-100 rounded-pill py-2 fw-bold" 
+                                    onclick="return confirm('Confirm you received the device safely in Surat?')">
+                                Confirm Receipt
+                            </button>
+                        </form>
+                    {% elif order.status == 'completed' %}
+                        {% if not order.feedback %}
+                            <a href="{% url 'leave_feedback' order.id %}" class="btn btn-outline-warning btn-sm w-100 rounded-pill py-2 fw-bold">
+                                <i class="bi bi-star-fill me-1"></i> Rate Seller
+                            </a>
+                        {% else %}
+                            <div class="text-warning fw-bold small">
+                                <i class="bi bi-check-circle-fill me-1"></i> Rated {{ order.feedback.average_rating }} / 5 ⭐
+                            </div>
+                        {% endif %}
+                    {% else %}
+                        <button class="btn btn-light btn-sm w-100 rounded-pill py-2 disabled">Processing...</button>
+                    {% endif %}
                 </div>
             </div>
         </div>
     </div>
     {% empty %}
-    <div class="text-center py-5">
-        <i class="bi bi-cart-x text-muted display-4"></i>
-        <p class="text-muted mt-3">You haven't bought any devices yet.</p>
-        <a href="{% url 'marketplace_home' %}" class="btn btn-primary px-4">Find Your Next Phone</a>
+    <div class="text-center py-5 bg-white rounded-4 shadow-sm">
+        <i class="bi bi-bag-x text-muted opacity-25" style="font-size: 4rem;"></i>
+        <h4 class="fw-bold mt-3">No Orders Found</h4>
+        <p class="text-muted mb-4">Your next dream phone is waiting in our marketplace.</p>
+        <a href="{% url 'marketplace_home' %}" class="btn btn-primary rounded-pill px-5">Start Shopping</a>
     </div>
     {% endfor %}
 </div>
+
 {% endblock %}

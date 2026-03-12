@@ -58,7 +58,7 @@ ROOT_URLCONF = 'phonebazar.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': ['templates',],  # Add your template directories here
+        'DIRS': [BASE_DIR /'templates',],  # Add your template directories here
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [

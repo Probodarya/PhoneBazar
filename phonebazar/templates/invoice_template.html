@@ -1,0 +1,79 @@
+<html>
+<head>
+    <style>
+        body { font-family: sans-serif; color: #333; }
+        .header { text-align: center; border-bottom: 2px solid #1a237e; padding-bottom: 20px; }
+        .invoice-box { padding: 30px; }
+        .table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        .table th, .table td { border: 1px solid #ddd; padding: 12px; text-align: left; }
+        .total { font-size: 1.5rem; font-weight: bold; color: #1a237e; text-align: right; }
+        .footer { margin-top: 50px; font-size: 0.8rem; text-align: center; color: #777; }
+        .logo { 
+        height: 60px; 
+        margin-bottom: 10px; 
+    }
+    .header h1 { 
+        margin-top: 5px; 
+        letter-spacing: 2px;
+        color: #1a237e;
+    }
+    </style>
+</head>
+<body>
+    <div class="invoice-box">
+        <div class="header">
+            <img src="{{ logo_path }}" class="logo">
+            <h1>PHONEBAZAR</h1>
+            <p>Verified Tech Marketplace • Surat, Gujarat</p>
+        </div>
+        
+        <table style="width: 100%; margin-top: 20px;">
+          <tr>
+                <td>
+                    <strong>Seller:</strong><br>
+                    {{ order.phone_listing.seller.firstname }} {{ order.phone_listing.seller.lastname }}<br>
+                    {{ order.phone_listing.seller.mobile_number }}<br>
+                    {{ order.phone_listing.retailer.firstname }} {{ order.phone_listing.retailer.lastname }}<br>
+                    {{ order.phone_listing.retailer.mobile_number }}
+            </tr>
+            <tr>
+                <td>
+                    <strong>Invoice To:</strong><br>
+                   Buyer Name: {{ order.buyer.firstname }} {{ order.buyer.lastname }}<br>
+                
+                   Buyer Phone: {{ order.buyer.mobile_number }}
+                </td>
+                <td style="text-align: right;">
+                    <strong>Invoice #:</strong> {{ order.id }}<br>
+                    <strong>Date:</strong> {{ order.created_at|date:"F j, Y" }}
+                </td>
+            </tr>
+        
+        </table>
+
+        <table class="table">
+            <thead style="background-color: #f8f9fa;">
+                <tr>
+                    <th>Device Details</th>
+                    <th>IMEI Number</th>
+                    <th>Price</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>{{ order.phone_listing.brand }} {{ order.phone_listing.model_name }}</td>
+                    <td>{{ order.phone_listing.imei_number }}</td>
+                    <td>₹{{ order.total_price }}</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <p class="total">Total Paid: ₹{{ order.total_price }}</p>
+
+        <div class="footer">
+            <p>This is a computer-generated invoice. No signature required.</p>
+            <p>Thank you for choosing PhoneBazar Surat for your certified tech purchase!</p>
+        </div>
+    </div>
+</body>
+</html>

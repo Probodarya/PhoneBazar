@@ -15,43 +15,102 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from .forms import PhoneListingForm
 from django.shortcuts import render, redirect, get_object_or_404
-from .models import Feedback, PhoneListing, Order, Transaction, TestReport
+from .models import Feedback, PhoneListing, Order, Transaction, TestReport, User
+from django.template.loader import render_to_string
+from django.utils.html import strip_tags
+from django.core.mail import EmailMultiAlternatives
+import os
+
+from django.core.mail import EmailMultiAlternatives, send_mail
+from django.template.loader import render_to_string
+from django.utils.html import strip_tags
+import os
+
 def userSignupView(request):
     if request.method == "POST":
         form = UserSignupForm(request.POST or None)
         if form.is_valid():
-            user = form.save()  # Save the user to the database
+            # 1. Save user as Inactive
+            user = form.save(commit=False)
+            user.is_active = False 
+            user.status = 'inactive'
+            user.save()
+
+            # 2. Generate the OTP
+            otp_code = user.generate_otp() 
             email_address = form.cleaned_data['email']
             first_name = form.cleaned_data.get('firstname')
-            context = {
-                        'email': email_address, # Passing the email address here
-                        'firstname':  first_name,
-                        'login_url': 'http://127.0.0.1:8000/core/login/' # Update with your actual domain
-                      }
-            html_content = render_to_string('welcome.html', context)
             
-            email = EmailMultiAlternatives(
+            # --- EMAIL 1: BRANDING & WELCOME (HTML with Attachment) ---
+            welcome_context = {
+                'email': email_address,
+                'firstname': first_name,
+                'login_url': 'http://127.0.0.1:8000/core/login/' 
+            }
+            welcome_html = render_to_string('welcome.html', welcome_context)
+            
+            welcome_email = EmailMultiAlternatives(
                 subject="Welcome to PhoneBazar - Your Mobile Hub 📱",
-                body=strip_tags(html_content),
+                body=strip_tags(welcome_html),
                 from_email=settings.EMAIL_HOST_USER,
                 to=[email_address]
             )
-            email.attach_alternative(html_content, "text/html")
+            welcome_email.attach_alternative(welcome_html, "text/html")
 
-            # Attachment: Maybe a "Mobile Price List" or "Warranty Guide"
-            file_path = os.path.join(settings.BASE_DIR, 'static/images/PhoneBazar_Logo.PNG')  # Example attachment
+            # Attach Logo
+            file_path = os.path.join(settings.BASE_DIR, 'static/images/logo.png')
             if os.path.exists(file_path):
-                email.attach_file(file_path)
+                welcome_email.attach_file(file_path)
+            
+            welcome_email.send() # Sends the branding email
 
-            email.send()
-            return redirect('login')
+            # --- EMAIL 2: SECURITY OTP (Simple & Fast) ---
+            # --- EMAIL 2: SECURITY OTP (HTML version) ---
+            otp_context = {
+                'firstname': first_name,
+                'otp': otp_code
+            }
+            otp_html = render_to_string('otp_mail.html', otp_context)
 
-           
+            otp_email = EmailMultiAlternatives(
+                subject="Your PhoneBazar Verification Code",
+                body=f"Your OTP is {otp_code}", # Fallback for plain text
+                from_email=settings.EMAIL_HOST_USER,
+                to=[email_address]
+            )
+            otp_email.attach_alternative(otp_html, "text/html")
+            otp_email.send()
+                        # 3. Redirect to verification page
+            return render(request, 'core/verify_otp.html', {'email': email_address})
+
         else:
             return render(request, 'core/signup.html', {'form': form})  
     else:
         form = UserSignupForm()
         return render(request, 'core/signup.html', {'form': form})
+    
+def verifyOtpView(request):
+    if request.method == "POST":
+        email = request.POST.get('email')
+        otp_entered = request.POST.get('otp')
+        
+        try:
+            user = User.objects.get(email=email)
+            if user.otp == otp_entered:
+                # Activate user
+                user.is_active = True
+                user.status = 'active'
+                user.otp = None  # Clear OTP after successful use
+                user.save()
+                return redirect('login')
+            else:
+                return render(request, 'core/verify_otp.html', {
+                    'email': email, 
+                    'error': 'Invalid OTP. Please try again.'
+                })
+        except User.DoesNotExist:
+            
+            return redirect('login')
     
 def userLoginView(request):
   if request.method =="POST":
@@ -396,7 +455,7 @@ def retailer_dashboard(request):
             'verified': listings.filter(is_verified=True).count(),
         }
     }
-    return render(request, 'bazar/retailer_dashboard.html', context)
+    return render(request, 'bazar/retailer/retailer_dashboard.html', context)
 
 #buyer navbar
 from django.shortcuts import render
@@ -758,3 +817,158 @@ def manage_shop(request):
         return redirect('manage_shop')
 
     return render(request, 'bazar/retailer/manage_shop.html', {'store': store})
+
+# views.py
+from django.template.loader import get_template
+from xhtml2pdf import pisa
+from django.http import HttpResponse
+from django.shortcuts import get_object_or_404
+
+def download_invoice(request, order_id):
+    order = get_object_or_404(Order, id=order_id, buyer=request.user)
+    template_path = 'invoice_template.html'
+    context = {'order': order}
+    logo_path = request.build_absolute_uri('/static/images/logo.png')
+    # Create a Django response object, and specify content_type as pdf
+    response = HttpResponse(content_type='application/pdf')
+    response['Content-Disposition'] = f'attachment; filename="PhoneBazar_Invoice_{order.id}.pdf"'
+    
+    # Find the template and render it
+    template = get_template(template_path)
+    html = template.render(context)
+
+    # Create PDF
+    pisa_status = pisa.CreatePDF(html, dest=response)
+    
+    if pisa_status.err:
+       return HttpResponse('We had some errors <pre>' + html + '</pre>')
+    return response
+import csv
+import io
+from django.contrib import messages
+from django.shortcuts import render, redirect
+from .models import PhoneListing
+
+def bulk_upload(request):
+    if request.method == 'POST':
+        csv_file = request.FILES.get('file')
+
+        # 1. Basic Validation: Is it a CSV?
+        if not csv_file.name.endswith('.csv'):
+            messages.error(request, 'This is not a CSV file!')
+            return redirect('bulk_upload')
+
+        # 2. Read and Decode the file
+        data_set = csv_file.read().decode('UTF-8')
+        io_string = io.StringIO(data_set)
+        next(io_string) # Skip the header row (Brand, Model, etc.)
+
+        # 3. Loop through rows and create objects
+        count = 0
+        for row in csv.reader(io_string, delimiter=',', quotechar='"'):
+            # Map columns: 0=Brand, 1=Model, 2=Price, 3=IMEI, 4=Condition
+            _, created = PhoneListing.objects.update_or_create(
+                imei_number=row[3], # Use IMEI as the unique identifier
+                defaults={
+                    'retailer': request.user,
+                    'brand': row[0],
+                    'model_name': row[1],
+                    'price': row[2],
+                    'condition': row[4],
+                }
+            )
+            count += 1
+
+        messages.success(request, f'Successfully imported {count} devices to your Surat store!')
+        return redirect('retailer/retailer_dashboard')
+
+    return render(request, 'retailer/bulk_upload.html')
+
+
+from django.shortcuts import render, redirect
+from django.contrib import messages
+from .models import User
+
+from django.core.mail import EmailMultiAlternatives
+from django.template.loader import render_to_string
+from django.utils.html import strip_tags
+from django.conf import settings
+from django.contrib import messages
+import os
+
+def forgot_password_view(request):
+    if request.method == "POST":
+        email_address = request.POST.get('email')
+        try:
+            user = User.objects.get(email=email_address)
+            
+            # 1. Generate the OTP
+            otp_code = user.generate_otp()
+            
+            # 2. Prepare the Email Content
+            context = {
+                'firstname': user.firstname if user.firstname else "User",
+                'otp': otp_code,
+            }
+            
+            # Using your existing OTP mail template for consistency
+            html_content = render_to_string('core/forgetotp_mail', context)
+            text_content = strip_tags(html_content)
+            
+            # 3. Create the Email object
+            email = EmailMultiAlternatives(
+                subject="Reset Your PhoneBazar Password 🔒",
+                body=text_content,
+                from_email=settings.EMAIL_HOST_USER,
+                to=[email_address]
+            )
+            email.attach_alternative(html_content, "text/html")
+            
+            
+            # (Optional) Attach logo if you want the branding here too
+            logo_path = os.path.join(settings.BASE_DIR, 'static/images/logo.png')
+            if os.path.exists(logo_path):
+                from email.mime.image import MIMEImage
+                with open(logo_path, 'rb') as f:
+                    logo_image = MIMEImage(f.read())
+                    logo_image.add_header('Content-ID', '<logo>')
+                    email.attach(logo_image)
+
+            # 4. Send the Email
+            email.send()
+            
+            messages.info(request, "A password reset code has been sent to your email.")
+            return render(request, 'core/verify_forgot_otp.html', {'email': email_address})
+            
+        except User.DoesNotExist:
+            messages.error(request, "No user found with this email address.")
+        except Exception as e:
+            messages.error(request, "Something went wrong while sending the email.")
+            print(f"Error: {e}")
+            
+    return render(request, 'core/forgot_password.html')
+
+def reset_password_view(request):
+    if request.method == "POST":
+        email = request.POST.get('email')
+        otp_entered = request.POST.get('otp')
+        new_password = request.POST.get('new_password')
+        confirm_password = request.POST.get('confirm_password')
+
+        user = User.objects.get(email=email)
+
+        if user.otp == otp_entered:
+            if new_password == confirm_password:
+                user.set_password(new_password)
+                user.otp = None  # Clear OTP
+                user.status = 'active' # Ensure they are active
+                user.is_active = True
+                user.save()
+                messages.success(request, "Password reset successful! Please login.")
+                return redirect('login')
+            else:
+                messages.error(request, "Passwords do not match.")
+        else:
+            messages.error(request, "Invalid OTP.")
+            
+    return render(request, 'core/verify_forgot_otp.html', {'email': email})

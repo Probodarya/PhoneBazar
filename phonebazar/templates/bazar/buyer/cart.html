@@ -1,78 +1,159 @@
+<style>
+    /* Table Styling Refinement */
+    .table-responsive {
+        border: none;
+    }
+    .table thead th {
+        background-color: #f8fafc;
+        border-bottom: 1px solid #edf2f7;
+        color: #64748b;
+        font-size: 0.85rem;
+        text-transform: uppercase;
+        letter-spacing: 0.025em;
+    }
+    .table tbody td {
+        border-bottom: 1px solid #f1f5f9;
+        padding: 1.5rem 1rem;
+    }
+
+    /* Product Image Glow */
+    .cart-img {
+        transition: transform 0.2s ease;
+        border: 1px solid #e2e8f0;
+    }
+    .cart-img:hover {
+        transform: scale(1.05);
+    }
+
+    /* Price Details Sidebar */
+    .sidebar-card {
+        background: #ffffff;
+        border: 1px solid #f1f5f9 !important;
+        position: sticky;
+        top: 2rem;
+    }
+
+    /* Button Interactions */
+    .btn-place-order {
+        background-color: #2eaf7d;
+        border: none;
+        transition: all 0.3s ease;
+    }
+    .btn-place-order:hover {
+        background-color: #248f66;
+        transform: translateY(-2px);
+        box-shadow: 0 10px 20px rgba(46, 175, 125, 0.2);
+    }
+    .btn-place-order a {
+        text-decoration: none;
+        color: white;
+    }
+
+    /* Remove Link Reset */
+    .remove-link {
+        color: #94a3b8;
+        transition: color 0.2s;
+    }
+    .remove-link:hover {
+        color: #ef4444;
+    }
+</style>
+
 {% extends 'base.html' %}
+
 {% block content %}
-<div class="d-flex">
-   
+<div class="flex-grow-1 p-5 bg-light min-vh-100">
+    <div class="d-flex justify-content-between align-items-end mb-4">
+        <div>
+            <h2 class="fw-bold mb-0">My <span style="color: #2eaf7d;">Cart</span></h2>
+            <p class="text-muted small">Standard Delivery available in Surat, Gujarat</p>
+        </div>
+        <p class="text-muted mb-0 fw-semibold">{{ cart_items|length }} Items</p>
+    </div>
 
-    <div class="flex-grow-1 p-5 bg-light min-vh-100">
-        <h2 class="fw-bold mb-4">My <span style="color: #2eaf7d;">Cart</span></h2>
-
-        <div class="row g-4">
-            <div class="col-lg-8">
-                <div class="card border-0 shadow-sm rounded-4 overflow-hidden">
-                    <div class="table-responsive">
-                        <table class="table align-middle mb-0">
-                            <thead class="table-light">
-                                <tr>
-                                    <th class="ps-4">Product</th>
-                                    <th>Price</th>
-                                    <th>Quantity</th>
-                                    <th class="text-end pe-4">Remove</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {% for item in cart_items %}
-                                <tr>
-                                    <td class="ps-4">
-                                        <div class="d-flex align-items-center py-2">
-                                            <img src="{{ item.phone.image.url }}" alt="Phone" class="rounded-3 me-3" style="width: 60px; height: 60px; object-fit: cover;">
-                                            <div>
-                                                <h6 class="mb-0 fw-bold">{{ item.phone.brand }} {{ item.phone.model_name }}</h6>
-                                                <small class="text-muted">IMEI: {{ item.phone.imei_number }}</small>
-                                            </div>
+    <div class="row g-4">
+        <div class="col-lg-8">
+            <div class="card border-0 shadow-sm rounded-4 overflow-hidden">
+                <div class="table-responsive">
+                    <table class="table align-middle mb-0">
+                        <thead>
+                            <tr>
+                                <th class="ps-4">Product</th>
+                                <th>Price</th>
+                                <th>Quantity</th>
+                                <th class="text-end pe-4">Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for item in cart_items %}
+                            <tr>
+                                <td class="ps-4">
+                                    <div class="d-flex align-items-center">
+                                        <img src="{{ item.phone.image.url }}" alt="Phone" 
+                                             class="rounded-3 me-3 cart-img" 
+                                             style="width: 70px; height: 70px; object-fit: contain; background: #fff;">
+                                        <div>
+                                            <h6 class="mb-0 fw-bold">{{ item.phone.brand }} {{ item.phone.model_name }}</h6>
+                                            <small class="text-muted d-block">Verified Device</small>
+                                            <code class="text-muted small" style="font-size: 0.7rem;">IMEI: {{ item.phone.imei_number }}</code>
                                         </div>
-                                    </td>
-                                    <td class="fw-bold">₹{{ item.phone.price }}</td>
-                                    <td>{{ item.quantity }}</td>
-                                    <td class="text-end pe-4">
-                                        <a href="#" class="btn btn-sm btn-outline-danger border-0"><i class="bi bi-trash"></i></a>
-                                    </td>
-                                </tr>
-                                {% empty %}
-                                <tr>
-                                    <td colspan="4" class="text-center py-5">
-                                        <p class="text-muted mb-3">Your cart is currently empty.</p>
-                                        <a href="{% url 'buyer_dashboard' %}" class="btn btn-primary rounded-pill px-4" style="background-color: #2eaf7d; border: none;">Shop Now</a>
-                                    </td>
-                                </tr>
-                                {% endfor %}
-                            </tbody>
-                        </table>
-                    </div>
+                                    </div>
+                                </td>
+                                <td><span class="fw-bold">₹{{ item.phone.price }}</span></td>
+                                <td>
+                                    <span class="badge bg-light text-dark border px-3 py-2 rounded-pill">{{ item.quantity }}</span>
+                                </td>
+                                <td class="text-end pe-4">
+                                    <a href="#" class="remove-link"><i class="bi bi-trash-fill fs-5"></i></a>
+                                </td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="4" class="text-center py-5">
+                                    <div class="py-4">
+                                        <i class="bi bi-cart-x display-4 text-muted opacity-25"></i>
+                                        <p class="text-muted mt-3 mb-4">Your cart is currently empty.</p>
+                                        <a href="{% url 'buyer_dashboard' %}" class="btn btn-primary rounded-pill px-5 py-2 btn-place-order">
+                                            Continue Shopping
+                                        </a>
+                                    </div>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
                 </div>
             </div>
+        </div>
 
-            <div class="col-lg-4">
-                <div class="card border-0 shadow-sm rounded-4 p-4">
-                    <h5 class="fw-bold mb-4">Price Details</h5>
-                    <div class="d-flex justify-content-between mb-2">
-                        <span>Price ({{ cart_items|length }} items)</span>
-                        <span>₹{{ total_price }}</span>
-                    </div>
-                    <div class="d-flex justify-content-between mb-2">
-                        <span>Delivery Charges</span>
-                        <span class="text-success">FREE</span>
-                    </div>
-                    <hr class="my-3">
-                    <div class="d-flex justify-content-between mb-4">
-                        <h5 class="fw-bold">Total Amount</h5>
-                        <h5 class="fw-bold text-dark">₹{{ total_price }}</h5>
-                    </div>
-                    <button class="btn btn-lg w-100 rounded-pill text-white fw-bold shadow-sm" style="background-color: #2eaf7d; border: none;">
-                      <a href="{% url 'place_order' %}" class="btn btn-lg w-100 rounded-pill text-white fw-bold shadow-sm" style="background-color: #2eaf7d; border: none;">
-       
-                        PLACE ORDER
-                    </button>
+        <div class="col-lg-4">
+            <div class="card border-0 shadow-sm rounded-4 p-4 sidebar-card">
+                <h5 class="fw-bold mb-4">Order Summary</h5>
+                
+                <div class="d-flex justify-content-between mb-3">
+                    <span class="text-muted">Bag Total ({{ cart_items|length }} items)</span>
+                    <span class="fw-semibold">₹{{ total_price }}</span>
                 </div>
+                
+                
+                <div class="d-flex justify-content-between mb-3">
+                    <span class="text-muted">Delivery Charges</span>
+            
+                    <span class="text-success fw-bold">FREE</span>
+                </div>
+                
+                
+
+                <hr class="my-4 opacity-10">
+                
+                <div class="d-flex justify-content-between mb-4">
+                    <h5 class="fw-bold">Grand Total</h5>
+                    <h4 class="fw-bold" style="color: #2eaf7d;">₹{{ total_price }}</h4>
+                </div>
+
+                <a href="{% url 'place_order' %}" class="btn btn-lg btn-place-order rounded-pill text-white fw-bold py-3 shadow-sm d-block text-center">
+                    CHECKOUT NOW <i class="bi bi-arrow-right ms-2"></i>
+                </a>
             </div>
         </div>
     </div>

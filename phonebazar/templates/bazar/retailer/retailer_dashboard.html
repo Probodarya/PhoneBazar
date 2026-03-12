@@ -1,67 +1,144 @@
-{% extends 'base.html' %}
-{% block content %}
-<div class="container mt-4">
-    <h3 class="fw-bold mb-4">🏬 Retailer Panel: {{ request.user.firstname }} {{ request.user.lastname }}</h3>
+<style>
+    /* Premium Stat Cards */
+    .stat-card {
+        border-radius: 1.25rem;
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        overflow: hidden;
+        position: relative;
+    }
+    .stat-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 12px 20px rgba(0,0,0,0.1) !important;
+    }
+    .stat-card .icon-bg {
+        position: absolute;
+        right: -10px;
+        bottom: -10px;
+        font-size: 5rem;
+        opacity: 0.1;
+        color: #fff;
+    }
 
-    <div class="row mb-4">
+    /* Table & List Styling */
+    .inventory-table thead th {
+        background-color: #f8fafc;
+        color: #64748b;
+        text-transform: uppercase;
+        font-size: 0.75rem;
+        letter-spacing: 1px;
+        border: none;
+    }
+    .inventory-table tbody td {
+        border-bottom: 1px solid #f1f5f9;
+        padding: 1rem 0.75rem;
+    }
+
+    /* Review Scrollbox */
+    .review-list {
+        max-height: 450px;
+        overflow-y: auto;
+    }
+    .review-item {
+        border-left: 4px solid transparent;
+        transition: all 0.2s;
+    }
+    .review-item:hover {
+        background-color: #f8fafc;
+        border-left-color: #ffc107;
+    }
+</style>
+<{% extends "base.html" %}
+{% block content %}
+<div class="container-fluid px-4 py-5 bg-light min-vh-100">
+    <div class="d-flex justify-content-between align-items-center mb-5">
+        <div>
+            <h2 class="fw-bold mb-1">Retailer <span class="text-primary">Panel</span></h2>
+            <p class="text-muted mb-0">Welcome back, {{ request.user.first_name }} • Manage your Surat Storefront</p>
+        </div>
+        <div class="d-flex gap-2">
+            <button class="btn btn-outline-secondary rounded-pill px-4"><i class="bi bi-download me-2"></i>Export Report</button>
+            <a href="{% url 'post_phone_ad' %}" class="btn btn-primary rounded-pill px-4 shadow-sm">+ Add New Stock</a>
+        </div>
+    </div>
+
+    <div class="row g-4 mb-5">
         <div class="col-md-3">
-            <div class="card bg-dark text-white p-3 shadow-sm border-0">
-                <small class="text-uppercase">Total Inventory</small>
-                <h2 class="fw-bold">{{ stats.total_stock }}</h2>
+            <div class="card stat-card bg-dark text-white p-4 border-0 shadow-sm">
+                <i class="bi bi-box-seam icon-bg"></i>
+                <small class="opacity-75 fw-bold">TOTAL INVENTORY</small>
+                <h2 class="fw-bold mt-2">{{ stats.total_stock }} <span class="fs-6 fw-normal">Units</span></h2>
             </div>
         </div>
         <div class="col-md-3">
-            <div class="card bg-primary text-white p-3 shadow-sm border-0">
-                <small class="text-uppercase">Total Revenue</small>
-                <h2 class="fw-bold">₹{{ stats.revenue }}</h2>
+            <div class="card stat-card bg-primary text-white p-4 border-0 shadow-sm">
+                <i class="bi bi-currency-rupee icon-bg"></i>
+                <small class="opacity-75 fw-bold">TOTAL REVENUE</small>
+                <h2 class="fw-bold mt-2">₹{{ stats.revenue }}</h2>
             </div>
         </div>
         <div class="col-md-3">
-            <div class="card bg-success text-white p-3 shadow-sm border-0">
-                <small class="text-uppercase">Verified Ads</small>
-                <h2 class="fw-bold">{{ stats.verified }}</h2>
+            <div class="card stat-card bg-success text-white p-4 border-0 shadow-sm">
+                <i class="bi bi-patch-check icon-bg"></i>
+                <small class="opacity-75 fw-bold">VERIFIED ADS</small>
+                <h2 class="fw-bold mt-2">{{ stats.verified }} <span class="fs-6 fw-normal">Active</span></h2>
             </div>
         </div>
         <div class="col-md-3">
-            <div class="card bg-white text-dark p-3 shadow-sm border-0">
-                <small class="text-uppercase text-muted">Store Rating</small>
-                <h2 class="fw-bold text-warning">{{ stats.avg_rating }} ⭐</h2>
-                <small class="text-muted">{{ stats.review_count }} Reviews</small>
+            <div class="card stat-card bg-white text-dark p-4 border-0 shadow-sm border-start border-warning border-5">
+                <small class="text-muted fw-bold">STORE RATING</small>
+                <div class="d-flex align-items-center mt-2">
+                    <h2 class="fw-bold text-warning mb-0 me-2">{{ stats.avg_rating }}</h2>
+                    <div class="text-warning">
+                        <i class="bi bi-star-fill"></i>
+                    </div>
+                </div>
+                <small class="text-muted">{{ stats.review_count }} verified reviews</small>
             </div>
         </div>
     </div>
 
-    <div class="row">
+    <div class="row g-4">
         <div class="col-lg-8">
-            <div class="card shadow-sm border-0">
-                <div class="card-header bg-white py-3 d-flex justify-content-between">
-                    <h5 class="mb-0 fw-bold">Live Inventory</h5>
-                    <a href="{% url 'post_phone_ad' %}" class="btn btn-sm btn-primary">+ Add Stock</a>
+            <div class="card border-0 shadow-sm rounded-4 h-100">
+                <div class="card-header bg-white border-0 py-4 px-4">
+                    <h5 class="mb-0 fw-bold"><i class="bi bi-list-stars me-2 text-primary"></i>Live Inventory</h5>
                 </div>
-                <div class="table-responsive">
-                    <table class="table align-middle">
-                        <thead class="table-light">
+                <div class="table-responsive px-4">
+                    <table class="table inventory-table align-middle">
+                        <thead>
                             <tr>
-                                <th>Model</th>
-                                <th>Price</th>
-                                <th>Status</th>
+                                <th>Model Details</th>
+                                <th>Listing Price</th>
+                                <th>Quality Status</th>
+                                <th class="text-end">Actions</th>
                             </tr>
                         </thead>
                         <tbody>
                             {% for item in listings %}
                             <tr>
-                                <td><strong>{{ item.brand }}</strong> {{ item.model_name }}</td>
-                                <td>₹{{ item.price }}</td>
+                                <td>
+                                    <div class="fw-bold text-dark">{{ item.brand }}</div>
+                                    <div class="small text-muted">{{ item.model_name }}</div>
+                                </td>
+                                <td><span class="fw-bold text-primary">₹{{ item.price }}</span></td>
                                 <td>
                                     {% if item.is_verified %}
-                                        <span class="badge bg-success-subtle text-success">Verified</span>
+                                        <span class="badge rounded-pill bg-success-subtle text-success border border-success-subtle px-3 py-2">
+                                            <i class="bi bi-shield-check me-1"></i> Verified
+                                        </span>
                                     {% else %}
-                                        <span class="badge bg-secondary-subtle text-muted">Testing</span>
+                                        <span class="badge rounded-pill bg-warning-subtle text-warning border border-warning-subtle px-3 py-2">
+                                            <i class="bi bi-clock-history me-1"></i> Testing
+                                        </span>
                                     {% endif %}
+                                </td>
+                                <td class="text-end">
+                                    <button class="btn btn-sm btn-light rounded-circle"><i class="bi bi-pencil"></i></button>
+                                    <button class="btn btn-sm btn-light rounded-circle text-danger ms-1"><i class="bi bi-trash"></i></button>
                                 </td>
                             </tr>
                             {% empty %}
-                            <tr><td colspan="3" class="text-center py-4">No inventory listed.</td></tr>
+                            <tr><td colspan="4" class="text-center py-5 text-muted">No stock found. Start by adding an ad.</td></tr>
                             {% endfor %}
                         </tbody>
                     </table>
@@ -70,25 +147,38 @@
         </div>
 
         <div class="col-lg-4">
-            <div class="card shadow-sm border-0">
-                <div class="card-header bg-white py-3">
-                    <h5 class="mb-0 fw-bold">Customer Reviews</h5>
+            <div class="card border-0 shadow-sm rounded-4 h-100">
+                <div class="card-header bg-white border-0 py-4 px-4 d-flex justify-content-between">
+                    <h5 class="mb-0 fw-bold">Recent Feedback</h5>
+                    <i class="bi bi-chat-quote fs-4 text-muted"></i>
                 </div>
-                <div class="card-body p-0">
-                    <ul class="list-group list-group-flush">
+                <div class="card-body p-0 review-list">
+                    <div class="list-group list-group-flush">
                         {% for review in reviews %}
-                        <li class="list-group-item">
-                            <div class="d-flex justify-content-between">
-                                <span class="text-warning">{% for i in "12345" %}{% if forloop.counter <= review.phone_condition_rating %}★{% endif %}{% endfor %}</span>
-                                <small class="text-muted">{{ review.created_at|date:"d M" }}</small>
+                        <div class="list-group-item review-item border-0 p-4">
+                            <div class="d-flex justify-content-between mb-2">
+                                <div class="text-warning">
+                                    {% for i in "12345" %}
+                                        <i class="bi bi-star{% if forloop.counter <= review.phone_condition_rating %}-fill{% endif %} small"></i>
+                                    {% endfor %}
+                                </div>
+                                <small class="text-muted font-monospace">{{ review.created_at|date:"d M" }}</small>
                             </div>
-                            <p class="small mb-1 mt-1 text-dark">"{{ review.comment|truncatechars:60 }}"</p>
-                            <small class="text-muted">- {{ review.buyer.get_username }}</small>
-                        </li>
+                            <p class="small text-dark fw-medium mb-1">"{{ review.comment|truncatechars:100 }}"</p>
+                            <div class="d-flex align-items-center">
+                                <div class="bg-primary rounded-circle text-white d-flex align-items-center justify-content-center me-2" style="width: 20px; height: 20px; font-size: 0.6rem;">
+                                    {{ review.buyer.get_username|first|upper }}
+                                </div>
+                                <small class="text-muted">{{ review.buyer.get_username }}</small>
+                            </div>
+                        </div>
                         {% empty %}
-                        <li class="list-group-item text-center py-4">No reviews yet.</li>
+                        <div class="text-center py-5">
+                            <i class="bi bi-chat-dots display-4 text-muted opacity-25"></i>
+                            <p class="text-muted mt-2">Waiting for first review</p>
+                        </div>
                         {% endfor %}
-                    </ul>
+                    </div>
                 </div>
             </div>
         </div>

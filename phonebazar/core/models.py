@@ -1,3 +1,4 @@
+
 from django.db import models
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager
 from django.conf import settings
@@ -58,6 +59,15 @@ class User(AbstractBaseUser):
 
     gender = models.CharField(max_length=10,choices=GENDER_CHOICES,default='', blank=True,null=True)
     mobile_number = models.CharField(max_length=10, blank=True,null=True)
+    
+    STATUS_CHOICES = (
+        ('active', 'Active'),
+        ('inactive', 'Inactive'),
+        ('blocked', 'Blocked'),
+        ('deleted', 'Deleted'),
+    )
+    status = models.CharField(max_length=10, choices=STATUS_CHOICES, default='inactive')
+    otp = models.CharField(max_length=6, blank=True, null=True)
 
     objects = UserManager()
 
@@ -67,6 +77,13 @@ class User(AbstractBaseUser):
     
     def __str__(self):
         return self.email
+    def generate_otp(self):
+        """Generates a random 6-digit OTP and saves it."""
+        import random
+        generated_otp = str(random.randint(100000, 999999))
+        self.otp = generated_otp
+        self.save()
+        return generated_otp
 
 class PhoneListing(models.Model):
     seller = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='listings')
@@ -250,5 +267,3 @@ class StoreProfile(models.Model):
         return self.store_name
 
 
-
-    

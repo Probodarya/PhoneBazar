@@ -1,46 +1,169 @@
+<style>
+    /* Card Styling */
+    .card.rounded-4 {
+        transition: all 0.3s cubic-bezier(0.165, 0.84, 0.44, 1);
+        background: #ffffff;
+        border: 1px solid rgba(0,0,0,0.05) !important;
+    }
+
+    .card.rounded-4:hover {
+        transform: translateY(-8px);
+        box-shadow: 0 15px 30px rgba(46, 175, 125, 0.1) !important;
+    }
+
+    /* Button Effects */
+    .btn-outline-dark, .btn-sm.text-white {
+        border-radius: 12px !important;
+        font-weight: 600;
+        transition: all 0.2s ease;
+        text-decoration: none !important; /* Remove link underlines */
+    }
+
+    /* Move to Cart Button Glow */
+    .btn-move-cart {
+        background-color: #2eaf7d;
+        border: none;
+        box-shadow: 0 4px 10px rgba(46, 175, 125, 0.2);
+    }
+
+    .btn-move-cart:hover {
+        background-color: #248f66 !important;
+        box-shadow: 0 6px 15px rgba(46, 175, 125, 0.4);
+        transform: scale(1.02);
+    }
+
+    /* Remove X Button Styling */
+    .remove-btn {
+        background: rgba(255, 255, 255, 0.9);
+        backdrop-filter: blur(4px);
+        border: none;
+        transition: all 0.2s ease;
+    }
+
+    .remove-btn:hover {
+        background: #ff4d4d !important;
+        color: white !important;
+    }
+
+    /* Image Container */
+    .wish-img-wrapper {
+        background: #fdfdfd;
+        border-bottom: 1px solid #f8f9fa;
+    }
+
+    /* Main Move to Cart Button */
+    .btn-move-cart {
+        background-color: #3f51b5;
+        border: none;
+        color: #ffffff;
+        font-weight: 600;
+        border-radius: 8px;
+        transition: all 0.3s ease;
+    }
+    .btn-move-cart:hover {
+        background-color: #309f68;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 10px rgba(63, 81, 181, 0.2);
+    }
+
+    /* Details Button */
+    .btn-view-details {
+        background-color: #ffffff;
+        border: 1px solid #dee2e6;
+        color: #495057;
+        font-weight: 500;
+        border-radius: 8px;
+    }
+    .btn-view-details:hover {
+        background-color: #f8fafc;
+        color: #3f51b5;
+    }
+
+    /* Subtle Remove Action */
+    .btn-remove-wishlist {
+        background-color: #ffffff;
+        border: 1px solid #dee2e6;
+        color: #495057;
+        font-weight: 500;
+        border-radius: 8px;
+    }
+    .btn-remove-wishlist:hover {
+        color: #dc3545; /* Bootstrap Red */
+    }
+.btn-move-cart, .btn-view-details,.btn-remove-wishlist {
+        border-radius: 12px;
+        letter-spacing: 1px;
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+</style>
 {% extends 'base.html' %}
 {% block content %}
-<div class="d-flex">
- 
-
-    <div class="flex-grow-1 p-5 bg-light min-vh-100">
-        <div class="d-flex justify-content-between align-items-center mb-4">
+<div class="flex-grow-1 p-5 bg-light min-vh-100">
+    <div class="d-flex justify-content-between align-items-end mb-5">
+        <div>
             <h2 class="fw-bold mb-0">My <span style="color: #2eaf7d;">Wishlist</span></h2>
-            <p class="text-muted mb-0">{{ wishlist_items.count }} Items Saved</p>
+            <p class="text-muted mb-0"><i class="bi bi-geo-alt-fill text-danger"></i> Surat, Gujarat • {{ wishlist_items.count }} items</p>
         </div>
+        <div class="text-end">
+            <button class="btn btn-sm btn-outline-secondary rounded-pill">Share Wishlist</button>
+        </div>
+    </div>
 
-        <div class="row g-4">
-            {% for item in wishlist_items %}
-            <div class="col-md-4 col-lg-3">
-                <div class="card border-0 shadow-sm rounded-4 overflow-hidden h-100">
-                    <div class="position-relative">
-                        <img src="{{ item.phone_listing.image.url }}" class="card-img-top p-3" alt="Phone" style="height: 200px; object-fit: contain;">
-                        <a href="{% url 'remove_from_wishlist' item.id %}" class="btn btn-light btn-sm position-absolute top-0 end-0 m-3 rounded-circle shadow-sm">
-                            <i class="bi bi-x-lg text-danger"></i>
+    <div class="row g-4">
+        {% for item in wishlist_items %}
+        <div class="col-md-4 col-lg-3">
+            <div class="card border-0 shadow-sm rounded-4 overflow-hidden h-100">
+                
+                <div class="position-relative wish-img-wrapper">
+                    <img src="{{ item.phone_listing.image.url }}" class="card-img-top p-4" alt="Phone" style="height: 220px; object-fit: contain;">
+                    
+                    <a href="{% url 'remove_from_wishlist' item.id %}" 
+                       class="remove-btn position-absolute top-0 end-0 m-3 rounded-circle shadow-sm d-flex align-items-center justify-content-center"
+                       style="width: 32px; height: 32px; text-decoration: none;">
+                        <i class="bi bi-x-lg text-danger" style="font-size: 0.8rem;"></i>
+                    </a>
+                </div>
+
+                <div class="card-body p-4">
+                    <small class="text-uppercase text-muted fw-bold font-monospace" style="font-size: 0.65rem; letter-spacing: 1px;">
+                        {{ item.phone_listing.brand }}
+                    </small>
+                    <h6 class="fw-bold text-dark mb-2">{{ item.phone_listing.model_name }}</h6>
+                    <h5 class="fw-bold mb-3" style="color: #1a237e;">₹{{ item.phone_listing.price }}</h5>
+                    
+                   <div class="d-grid gap-2">
+                        <a href="{% url 'add_to_cart' item.phone_listing.id %}" class="btn btn-move-cart btn-sm text-white py-2">
+                            <i class="bi bi-cart-plus me-1"></i> MOVE TO CART
                         </a>
-                    </div>
 
-                    <div class="card-body p-3">
-                        <h6 class="fw-bold mb-1">{{ item.phone_listing.brand }} {{ item.phone_listing.model_name }}</h6>
-                        <h5 class="text-dark fw-bold">₹{{ item.phone_listing.price }}</h5>
-                        
-                        <div class="d-grid mt-3 gap-2">
-                            <a href="{% url 'phone_detail' item.phone_listing.id %}" class="btn btn-sm btn-outline-dark rounded-pill">View Details</a>
-                            <a href="{% url 'add_to_cart' item.phone_listing.id %}" class="btn btn-sm text-white rounded-pill" style="background-color: #2eaf7d;">
-                                <i class="bi bi-cart-plus"></i> Move to Cart
+                        <a href="{% url 'phone_detail' item.phone_listing.id %}" class="btn btn-view-details btn-sm py-2">
+                            VIEW DETAILS
+                        </a>
+
+                      
+                         <a href="{% url 'remove_from_wishlist' item.id %}" class="btn-remove-wishlist">
+                                <i class="bi bi-trash3 me-1"></i> Remove from wishlist
                             </a>
-                        </div>
+                       
                     </div>
                 </div>
             </div>
-            {% empty %}
-            <div class="col-12 text-center py-5">
-                <i class="bi bi-heartbreak display-1 text-muted opacity-25"></i>
-                <p class="mt-3 text-muted">Your wishlist is empty. Explore phones in Surat!</p>
-                <a href="{% url 'home' %}" class="btn btn-primary rounded-pill px-4" style="background-color: #2eaf7d; border: none;">Explore Phones</a>
-            </div>
-            {% endfor %}
         </div>
+        {% empty %}
+        <div class="col-12 text-center py-5">
+            <div class="bg-white d-inline-block p-5 rounded-5 shadow-sm">
+                <i class="bi bi-heartbreak display-1 text-muted opacity-25"></i>
+                <h4 class="mt-4 fw-bold">Your wishlist is empty</h4>
+                <p class="text-muted">You haven't saved any devices from the Surat marketplace yet.</p>
+                <a href="{% url 'marketplace_home' %}" class="btn btn-move-cart text-white rounded-pill px-5 py-2 mt-3">
+                    Discover Phones
+                </a>
+            </div>
+        </div>
+        {% endfor %}
     </div>
 </div>
 {% endblock %}

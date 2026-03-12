@@ -1,0 +1,133 @@
+
+<style>
+    /* Reuse the same container and card styling for consistency */
+    .auth-container {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: 85vh;
+        background-color: #f4f7f6;
+        padding: 20px;
+    }
+
+    .otp-card {
+        background: #ffffff;
+        padding: 40px;
+        border-radius: 16px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+        max-width: 420px;
+        width: 100%;
+        text-align: center;
+        border: 1px solid #eee;
+    }
+
+    .otp-card h2 {
+        color: #2c3e50;
+        font-size: 28px;
+        margin-bottom: 12px;
+        font-weight: 700;
+    }
+
+    .otp-card p {
+        color: #7f8c8d;
+        font-size: 15px;
+        line-height: 1.6;
+        margin-bottom: 30px;
+    }
+
+    /* Input Styling */
+    .input-group {
+        margin-bottom: 15px;
+    }
+
+    .input-group input {
+        width: 100%;
+        padding: 14px 18px;
+        font-size: 16px;
+        border: 2px solid #e0e0e0;
+        border-radius: 10px;
+        outline: none;
+        transition: all 0.3s ease;
+        box-sizing: border-box;
+    }
+
+    /* Highlight the OTP input specifically */
+    input[name="otp"] {
+        letter-spacing: 8px;
+        font-size: 22px;
+        font-weight: bold;
+        text-align: center;
+        border-color: #f97316; /* Orange color from your email template */
+        background-color: #fffaf7;
+    }
+
+    .input-group input:focus {
+        border-color: #2c3e50;
+        box-shadow: 0 0 8px rgba(44, 62, 80, 0.1);
+    }
+
+    .btn-verify {
+        width: 100%;
+        background-color: #2c3e50;
+        color: white;
+        padding: 15px;
+        border: none;
+        border-radius: 10px;
+        font-size: 16px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: background 0.3s ease, transform 0.2s ease;
+        margin-top: 15px;
+    }
+
+    .btn-verify:hover {
+        background-color: #1a252f;
+        transform: translateY(-1px);
+    }
+
+    .error-msg {
+        background-color: #fff1f2;
+        color: #be123c;
+        padding: 10px;
+        border-radius: 8px;
+        font-size: 14px;
+        margin-top: 15px;
+        border: 1px solid #fecdd3;
+    }
+</style>
+
+<div class="auth-container">
+    <div class="otp-card">
+        <div style="font-size: 50px; margin-bottom: 15px;">🛡️</div>
+        
+        <h2>Reset Password</h2>
+        <p>Enter the 6-digit OTP sent to <strong>{{ email }}</strong> and choose your new password.</p>
+        
+        <form method="POST" action="{% url 'reset_password' %}">
+            {% csrf_token %}
+            <input type="hidden" name="email" value="{{ email }}">
+            
+            <div class="input-group">
+                <input type="text" name="otp" placeholder="OTP Code" required maxlength="6">
+            </div>
+
+            <div class="input-group">
+                <input type="password" name="new_password" placeholder="New Password" required>
+            </div>
+
+            <div class="input-group">
+                <input type="password" name="confirm_password" placeholder="Confirm New Password" required>
+            </div>
+            
+            <button type="submit" class="btn-verify">Update Password</button>
+        </form>
+
+        {% if messages %}
+            {% for message in messages %}
+                <div class="error-msg">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        {% endif %}
+    </div>
+</div>
