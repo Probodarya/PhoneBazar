@@ -145,6 +145,9 @@ class Order(models.Model):
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='pending_test')
     tracking_number = models.CharField(max_length=100, blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
+    razorpay_order_id = models.CharField(max_length=200, blank=True, null=True)
+    razorpay_payment_id = models.CharField(max_length=200, blank=True, null=True)
+    razorpay_signature = models.CharField(max_length=200, blank=True, null=True)
 
     def __str__(self):
         return f"Order #{self.id} - {self.phone_listing.model_name} ({self.get_status_display()})"

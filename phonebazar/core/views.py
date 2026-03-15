@@ -219,22 +219,20 @@ def dashboard_redirect(request):
 
 from django.shortcuts import render
 from django.contrib.auth.decorators import login_required
-from .models import PhoneListing, Feedback
-from django.db.models import Avg
+from .models import PhoneListing, Feedback, Order
+from django.db.models import Avg,Sum
+
 @login_required
 def seller_dashboard(request):
-    # 1. Fetch listings for the CURRENT user
-    listings_list = PhoneListing.objects.filter(seller=request.user)
-    
-    # 2. Fetch feedback for the CURRENT user
+
+    # Fetch ALL phone listings
+    listings_list = PhoneListing.objects.all()
+
     reviews_list = request.user.received_feedback.all()
-    
-    # 3. Calculate Average Rating
-    avg_score = reviews_list.aggregate(Avg('phone_condition_rating'))['phone_condition_rating__avg'] or 0
-    
-    # Debugging: Check your VS Code terminal to see if these numbers are > 0
-    print(f"--- DEBUG: User {request.user.email} ---")
-    print(f"Listings: {listings_list.count()} | Reviews: {reviews_list.count()}")
+
+    avg_score = reviews_list.aggregate(
+        Avg('phone_condition_rating')
+    )['phone_condition_rating__avg'] or 0
 
     stats = {
         'total': listings_list.count(),
@@ -243,41 +241,60 @@ def seller_dashboard(request):
     }
 
     context = {
-        'listings': listings_list,  # Use 'listings' to match your {% for listing in listings %}
+        'listings': listings_list,
         'reviews': reviews_list.order_by('-created_at'),
         'avg_score': round(float(avg_score), 1),
         'feedback_count': reviews_list.count(),
         'stats': stats,
     }
-    
+
     return render(request, 'bazar/seller/seller_dashboard.html', context)
 #5-2-2026 work
 from django.contrib import messages
 from django.shortcuts import redirect, get_object_or_404
 from .models import PhoneListing, Order
 
-@login_required
-def create_order(request, listing_id):
-    listing = get_object_or_404(PhoneListing, id=listing_id, is_verified=True)
-    
-    # Prevent buying your own phone
-    if listing.seller == request.user:
-        messages.error(request, "You cannot buy your own listing!")
-        return redirect('seller_dashboard')
+import razorpay
+from django.conf import settings
+from django.shortcuts import render, redirect
+from .models import PhoneListing, Order
 
-    # Create the order
+@login_required
+def create_order(request, phone_id):
+
+    phone = PhoneListing.objects.get(id=phone_id)
+
     order = Order.objects.create(
         buyer=request.user,
-        phone_listing=listing,
-        total_price=listing.price,
-        status='escrow' # Assuming payment is handled here
+        phone_listing=phone,
+        total_price=phone.price,
+        status="pending_payment"
     )
-    
-    messages.success(request, f"Order for {listing.model_name} placed successfully!")
-    return redirect('buyer_dashboard') # You'll need to create this view next
+
+    client = razorpay.Client(
+        auth=(settings.RAZORPAY_KEY_ID, settings.RAZORPAY_KEY_SECRET)
+    )
+
+    payment = client.order.create({
+        "amount": int(phone.price * 100),
+        "currency": "INR",
+        "payment_capture": "1"
+    })
+
+    order.razorpay_order_id = payment["id"]
+    order.save()
+
+    context = {
+        "order": order,
+        "razorpay_key": settings.RAZORPAY_KEY_ID,
+        "amount": phone.price * 100,
+        "razorpay_order_id": payment["id"],
+    }
+
+    return render(request, "bazar/buyer/payment_page.html", context)
 
 @login_required
-def buyer_dashboard(request):
+def My_Purchases(request):
     # Fetch all orders placed by the current user
     my_purchases = Order.objects.filter(buyer=request.user).select_related('phone_listing').order_by('-created_at')
     
@@ -288,10 +305,12 @@ def buyer_dashboard(request):
         'delivered': my_purchases.filter(status='delivered').count(),
     }
     
-    return render(request, 'bazar/buyer/buyer_dashboard.html', {
+    return render(request, 'bazar/buyer/My_Purchases.html', {
         'orders': my_purchases,
         'stats': stats
     })
+
+
 from django.shortcuts import render
 from .models import PhoneListing
 
@@ -308,12 +327,21 @@ def marketplace_home(request):
 from django.shortcuts import render, get_object_or_404
 from .models import PhoneListing
 
-def phone_detail(request, pk):
-    # Fetch the phone or return a 404 error if it doesn't exist
-    phone = get_object_or_404(PhoneListing, pk=pk)
-    
-    return render(request, 'bazar/phone_detail.html', {
-        'phone': phone
+from django.shortcuts import render, get_object_or_404
+from .models import PhoneListing
+
+def phone_detail(request, id):
+
+    phone = get_object_or_404(PhoneListing, id=id)
+
+    similar_phones = PhoneListing.objects.filter(
+        brand=phone.brand,
+        is_verified=True
+    ).exclude(id=id)[:4]
+
+    return render(request, "bazar/phone_detail.html", {
+        "phone": phone,
+        "similar_phones": similar_phones
     })
 from django.shortcuts import redirect, get_object_or_404
 from django.contrib import messages
@@ -322,38 +350,38 @@ from .models import PhoneListing, Order
 
  # Import Django's DB transaction tool
 
-from django.db import transaction as db_transaction
+from django.shortcuts import get_object_or_404
+from .models import PhoneListing, Order, Address
+
 
 @login_required
 def create_order(request, phone_id):
-    listing = get_object_or_404(PhoneListing, id=phone_id)
 
-    try:
-        with db_transaction.atomic():
-            # Create Order
-            order = Order.objects.create(
-                buyer=request.user,
-                phone_listing=listing,
-                total_price=listing.price,
-                status='escrow'
-            )
+    phone = get_object_or_404(PhoneListing, id=phone_id)
 
-            # Create Transaction
-            txn = Transaction.objects.create(
-                listing=listing,
-                buyer=request.user,
-                amount=listing.price,
-                status='held'
-            )
+    # Get default address
+    address = Address.objects.filter(user=request.user, is_default=True).first()
 
-        # Pass the Transaction ID in the success message
-        messages.success(request, f"Order successful! Your Transaction ID is: {txn.transaction_id}")
-        return redirect('buyer_dashboard')
+    # If no default address, get any address
+    if not address:
+        address = Address.objects.filter(user=request.user).first()
 
-    except Exception as e:
-        messages.error(request, f"Error processing order: {str(e)}")
-        return redirect('phone_detail', pk=phone_id)
-    
+    if request.method == "POST":
+
+        Order.objects.create(
+            buyer=request.user,
+            phone_listing=phone,
+            address=address,
+            total_price=phone.price,
+            status="escrow"
+        )
+
+        return redirect("my_orders")
+
+    return render(request, "core/create_order.html", {
+        "phone": phone,
+        "address": address
+    })
 def order_success(request, txn_id):
     transaction = get_object_or_404(Transaction, transaction_id=txn_id, buyer=request.user)
     return render(request, 'bazar/order_success.html', {'txn': transaction})
@@ -394,7 +422,7 @@ def leave_feedback(request, order_id):
     # Prevent double feedback
     if hasattr(order, 'feedback'):
         messages.warning(request, "You have already left feedback for this order.")
-        return redirect('buyer_dashboard')
+        return redirect('My_Purchases')
 
     if request.method == 'POST':
         form = FeedbackForm(request.POST)
@@ -405,7 +433,7 @@ def leave_feedback(request, order_id):
             feedback.seller = order.phone_listing.seller
             feedback.save()
             messages.success(request, "Thank you for your feedback!")
-            return redirect('buyer_dashboard')
+            return redirect('My_Purchases')
     else:
         form = FeedbackForm()
     
@@ -568,7 +596,7 @@ def place_order(request):
     
     if not cart:
         messages.error(request, "Your cart is empty!")
-        return redirect('buyer_dashboard')
+        return redirect('Buyer_dashboard')
 
     # Get the user's default address for the order
     address = Address.objects.filter(user=request.user, is_default=True).first()
@@ -593,7 +621,8 @@ def place_order(request):
     request.session.modified = True
     
     messages.success(request, "Order placed successfully! Sellers in Surat have been notified.")
-    return redirect('buyer_dashboard')
+       
+    return redirect('Buyer_dashboard')
 from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
 from .models import Address  # Assuming you have an Address model
@@ -972,3 +1001,109 @@ def reset_password_view(request):
             messages.error(request, "Invalid OTP.")
             
     return render(request, 'core/verify_forgot_otp.html', {'email': email})
+
+import razorpay
+from django.conf import settings
+from django.shortcuts import render, redirect
+from django.contrib.auth.decorators import login_required
+from .models import PhoneListing, Order, Address
+
+
+import razorpay
+from django.conf import settings
+from django.shortcuts import render
+from django.contrib.auth.decorators import login_required
+from .models import PhoneListing
+
+
+@login_required
+def checkout(request, phone_id):
+
+    phone = PhoneListing.objects.get(id=phone_id)
+
+    client = razorpay.Client(
+        auth=(settings.RAZORPAY_KEY_ID, settings.RAZORPAY_KEY_SECRET)
+    )
+
+    payment = client.order.create({
+        "amount": int(phone.price) * 100,
+        "currency": "INR",
+        "payment_capture": 1
+    })
+
+    context = {
+        "phone": phone,
+        "payment": payment,
+        "razorpay_key": settings.RAZORPAY_KEY_ID
+    }
+
+    return render(request, "bazar/buyer/checkout.html", context)
+from django.http import HttpResponseBadRequest
+from django.shortcuts import redirect
+from django.contrib.auth.decorators import login_required
+import razorpay
+from django.conf import settings
+from .models import Order, PhoneListing
+
+
+@login_required
+def payment_verify(request, phone_id):
+
+    if request.method == "POST":
+
+        payment_id = request.POST.get("razorpay_payment_id")
+        order_id = request.POST.get("razorpay_order_id")
+        signature = request.POST.get("razorpay_signature")
+
+        client = razorpay.Client(
+            auth=(settings.RAZORPAY_KEY_ID, settings.RAZORPAY_KEY_SECRET)
+        )
+
+        data = {
+            "razorpay_payment_id": payment_id,
+            "razorpay_order_id": order_id,
+            "razorpay_signature": signature
+        }
+
+        try:
+            client.utility.verify_payment_signature(data)
+
+            phone = PhoneListing.objects.get(id=phone_id)
+
+            Order.objects.create(
+                buyer=request.user,
+                phone_listing=phone,
+                total_price=phone.price,
+                status="processing"
+            )
+
+            return redirect("my_orders")
+
+        except:
+            return HttpResponseBadRequest("Payment verification failed")
+@login_required
+def payment_success(request, phone_id):
+
+    phone = PhoneListing.objects.get(id=phone_id)
+
+    Order.objects.create(
+        buyer=request.user,
+        phone_listing=phone,
+        total_price=phone.price,
+        status="processing"
+    )
+
+    return redirect("my_orders")
+
+@login_required
+def my_orders(request):
+
+    orders = Order.objects.filter(
+        buyer=request.user
+    ).order_by("-created_at")
+
+    return render(
+        request,
+        "bazar/buyer/My_Purchases.html",
+        {"orders": orders}
+    )

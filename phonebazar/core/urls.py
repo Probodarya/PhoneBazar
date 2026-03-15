@@ -19,10 +19,10 @@ urlpatterns = [
   path('marketplace/', views.marketplace_home, name='marketplace_home'),
   path('phone/<int:pk>/', views.phone_detail, name='phone_detail'),
   path('buy/<int:phone_id>/', views.create_order, name='create_order'),
-  path('dashboard/buyer/', views.buyer_dashboard, name='buyer_dashboard'),
+  #path('dashboard/buyer/', views.buyer_dashboard, name='buyer_dashboard'),
   path('order/confirm/<int:order_id>/', views.confirm_delivery, name='confirm_delivery'),
   path('leave-feedback/<int:order_id>/', views.leave_feedback, name='leave_feedback'),
-  path('dashboard/retailer/', views.retailer_dashboard, name='retailer_dashboard'),
+ # path('dashboard/retailer/', views.retailer_dashboard, name='retailer_dashboard'),
 #buyer navar
     #path('wishlist/', views.wishlist, name='wishlist'),
     path('wishlist/add/<int:phone_id>/', views.add_to_wishlist, name='add_to_wishlist'),
@@ -34,6 +34,7 @@ urlpatterns = [
     path('place-order/', views.place_order, name='place_order'),
     path('addresses/', views.saved_addresses, name='saved_addresses'),
     path('set-default-address/<int:address_id>/', views.set_default_address, name='set_default_address'),
+    
 
     path('support/', views.support_chat, name='support_chat'),
 #seller navbar
@@ -50,5 +51,24 @@ urlpatterns = [
   path('verify-otp/', views.verifyOtpView, name='verify_otp'),
   path('forgot-password/', views.forgot_password_view, name='forgot_password'),
   path('reset-password/', views.reset_password_view, name='reset_password'),
-]
+  path('my_purchases/', views.My_Purchases, name='My_Purchases'),
 
+    path(
+        "checkout/<int:phone_id>/",
+        views.checkout,
+        name="checkout"
+    ),
+
+    path(
+        "payment-verify/<int:phone_id>/",
+        views.payment_verify,
+        name="payment_verify"
+    ),
+
+    path(
+        "my-orders/",
+        views.my_orders,
+        name="my_orders"
+    ),
+
+]

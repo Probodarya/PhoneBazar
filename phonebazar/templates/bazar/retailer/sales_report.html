@@ -1,132 +1,313 @@
-<style>
-    /* Summary Stat Styling */
-    .report-stat-card {
-        border: 1px solid #edf2f7;
-        transition: all 0.3s ease;
-    }
-    .report-stat-card:hover {
-        border-color: #3f51b5;
-        background-color: #fcfdff;
-    }
-
-    /* Table Typography */
-    .report-table thead th {
-        background-color: #f8fafc;
-        color: #475569;
-        font-size: 0.75rem;
-        text-transform: uppercase;
-        letter-spacing: 0.05em;
-        padding: 1.25rem 1rem;
-    }
-    .report-table tbody td {
-        padding: 1rem;
-        color: #1e293b;
-    }
-
-    /* Print Optimization */
-    @media print {
-        .btn, .navbar, .sidebar, .no-print {
-            display: none !important;
-        }
-        .container {
-            width: 100% !important;
-            max-width: 100% !important;
-            margin: 0 !important;
-            padding: 0 !important;
-        }
-        .card {
-            box-shadow: none !important;
-            border: 1px solid #eee !important;
-        }
-    }
-</style>
 {% extends "base.html" %}
+{% load static %}
+
 {% block content %}
-<div class="container py-5">
-    <div class="d-flex justify-content-between align-items-end mb-5">
-        <div>
-            <h2 class="fw-bold mb-1">Sales <span style="color: #3f51b5;">Reports</span></h2>
-            <p class="text-muted small mb-0">Statement generated on {% now "jS F Y, H:i" %}</p>
-        </div>
-        <div class="no-print">
-            <button class="btn btn-dark rounded-pill px-4 fw-bold shadow-sm" onclick="window.print()">
-                <i class="bi bi-printer-fill me-2"></i> PRINT STATEMENT
-            </button>
-        </div>
-    </div>
 
-    <div class="row g-4 mb-5 text-center">
-        <div class="col-md-4">
-            <div class="bg-white report-stat-card rounded-4 p-4 shadow-sm">
-                <i class="bi bi-wallet2 text-primary fs-3 mb-2 d-block"></i>
-                <small class="text-muted text-uppercase fw-bold opacity-75">Gross Revenue</small>
-                <h2 class="fw-bold text-dark mt-2 mb-0">₹{{ total_revenue }}</h2>
-            </div>
-        </div>
-        <div class="col-md-4">
-            <div class="bg-white report-stat-card rounded-4 p-4 shadow-sm">
-                <i class="bi bi-graph-up-arrow text-success fs-3 mb-2 d-block"></i>
-                <small class="text-muted text-uppercase fw-bold opacity-75">Average Order</small>
-                <h2 class="fw-bold text-dark mt-2 mb-0">₹{{ avg_order_value }}</h2>
-            </div>
-        </div>
-        <div class="col-md-4">
-            <div class="bg-white report-stat-card rounded-4 p-4 shadow-sm">
-                <i class="bi bi-cart-check text-indigo fs-3 mb-2 d-block" style="color: #3f51b5;"></i>
-                <small class="text-muted text-uppercase fw-bold opacity-75">Items Dispatched</small>
-                <h2 class="fw-bold text-dark mt-2 mb-0">{{ total_units_sold }}</h2>
-            </div>
-        </div>
-    </div>
+<style>
 
-    <div class="card border-0 shadow-sm rounded-4 overflow-hidden">
-        <div class="card-header bg-white py-4 px-4 border-0">
-            <h6 class="fw-bold mb-0">Detailed Transaction Log</h6>
-        </div>
-        <div class="table-responsive">
-            <table class="table report-table align-middle mb-0">
-                <thead>
-                    <tr>
-                        <th class="ps-4">Ref. ID</th>
-                        <th>Sale Date</th>
-                        <th>Device & Inventory Info</th>
-                        <th>Customer</th>
-                        <th class="text-end pe-4">Net Earnings</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for sale in sales %}
-                    <tr>
-                        <td class="ps-4"><code class="text-primary fw-bold">#PB-{{ sale.id }}</code></td>
-                        <td class="text-muted">{{ sale.created_at|date:"M d, Y" }}</td>
-                        <td>
-                            <div class="fw-bold">{{ sale.phone_listing.brand }} {{ sale.phone_listing.model_name }}</div>
-                            <small class="text-muted font-monospace" style="font-size: 0.7rem;">SN: {{ sale.phone_listing.imei_number|truncatechars:12 }}</small>
-                        </td>
-                        <td>
-                            <div class="small">{{ sale.buyer.email }}</div>
-                            <span class="badge bg-success-subtle text-success small" style="font-size: 0.6rem;">PAID</span>
-                        </td>
-                        <td class="text-end pe-4 fw-bold text-success" style="font-size: 1.1rem;">
-                            ₹{{ sale.total_price }}
-                        </td>
-                    </tr>
-                    {% empty %}
-                    <tr>
-                        <td colspan="5" class="text-center py-5">
-                            <i class="bi bi-folder-x display-4 text-muted opacity-25"></i>
-                            <p class="text-muted mt-3">No data available for the selected period.</p>
-                        </td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-        </div>
-    </div>
-    
-    <div class="d-none d-print-block mt-5 text-center">
-        <hr>
-        <p class="text-muted small">This is an automated sales report from PhoneBazar Retailer Panel • Surat, Gujarat </p>
-    </div>
+/* Page background */
+
+.report-bg{
+background:linear-gradient(120deg,#f8fafc,#ffffff);
+min-height:100vh;
+}
+
+/* Summary stat cards */
+
+.report-stat-card{
+border:1px solid #edf2f7;
+border-radius:16px;
+transition:.3s;
+}
+
+.report-stat-card:hover{
+border-color:#3f51b5;
+background:#fcfdff;
+box-shadow:0 8px 18px rgba(0,0,0,0.06);
+}
+
+/* Table */
+
+.report-table thead th{
+background:#f8fafc;
+color:#475569;
+font-size:12px;
+text-transform:uppercase;
+letter-spacing:.05em;
+padding:18px 16px;
+}
+
+.report-table tbody td{
+padding:16px;
+color:#1e293b;
+border-bottom:1px solid #f1f5f9;
+}
+
+/* Print styling */
+
+@media print{
+
+.navbar,
+.sidebar,
+.btn,
+.no-print{
+display:none !important;
+}
+
+.container{
+max-width:100% !important;
+width:100% !important;
+margin:0 !important;
+padding:0 !important;
+}
+
+.card{
+box-shadow:none !important;
+border:1px solid #ddd !important;
+}
+
+}
+
+</style>
+
+<div class="container report-bg py-5">
+
+<!-- Header -->
+
+<div class="d-flex justify-content-between align-items-end mb-5">
+
+<div>
+
+<h2 class="fw-bold mb-1">
+Sales <span class="text-primary">Reports</span>
+</h2>
+
+<p class="text-muted small mb-0">
+Statement generated on {% now "jS F Y, H:i" %}
+</p>
+
 </div>
+
+<div class="no-print">
+
+<button class="btn btn-dark rounded-pill px-4 fw-bold shadow-sm"
+onclick="window.print()">
+
+<i class="bi bi-printer-fill me-2"></i>
+
+Print Statement
+
+</button>
+
+</div>
+
+</div>
+
+<!-- Stats -->
+
+<div class="row g-4 mb-5 text-center">
+
+<div class="col-md-4">
+
+<div class="bg-white report-stat-card p-4 shadow-sm">
+
+<i class="bi bi-wallet2 text-primary fs-3 mb-2"></i>
+
+<small class="text-muted text-uppercase fw-bold opacity-75">
+Gross Revenue
+</small>
+
+<h2 class="fw-bold mt-2 mb-0">
+₹{{ total_revenue }}
+</h2>
+
+</div>
+
+</div>
+
+<div class="col-md-4">
+
+<div class="bg-white report-stat-card p-4 shadow-sm">
+
+<i class="bi bi-graph-up-arrow text-success fs-3 mb-2"></i>
+
+<small class="text-muted text-uppercase fw-bold opacity-75">
+Average Order
+</small>
+
+<h2 class="fw-bold mt-2 mb-0">
+₹{{ avg_order_value }}
+</h2>
+
+</div>
+
+</div>
+
+<div class="col-md-4">
+
+<div class="bg-white report-stat-card p-4 shadow-sm">
+
+<i class="bi bi-cart-check fs-3 mb-2" style="color:#3f51b5"></i>
+
+<small class="text-muted text-uppercase fw-bold opacity-75">
+Items Dispatched
+</small>
+
+<h2 class="fw-bold mt-2 mb-0">
+{{ total_units_sold }}
+</h2>
+
+</div>
+
+</div>
+
+</div>
+
+<!-- Table -->
+
+<div class="card border-0 shadow-sm rounded-4 overflow-hidden">
+
+<div class="card-header bg-white py-4 px-4 border-0">
+
+<h6 class="fw-bold mb-0">
+Detailed Transaction Log
+</h6>
+
+</div>
+
+<div class="table-responsive">
+
+<table class="table report-table align-middle mb-0">
+
+<thead>
+
+<tr>
+
+<th class="ps-4">
+Ref ID
+</th>
+
+<th>
+Sale Date
+</th>
+
+<th>
+Device Info
+</th>
+
+<th>
+Customer
+</th>
+
+<th class="text-end pe-4">
+Net Earnings
+</th>
+
+</tr>
+
+</thead>
+
+<tbody>
+
+{% for sale in sales %}
+
+<tr>
+
+<td class="ps-4">
+
+<code class="text-primary fw-bold">
+#PB-{{ sale.id }}
+</code>
+
+</td>
+
+<td class="text-muted">
+
+{{ sale.created_at|date:"M d, Y" }}
+
+</td>
+
+<td>
+
+<div class="fw-bold">
+
+{{ sale.phone_listing.brand }}
+{{ sale.phone_listing.model_name }}
+
+</div>
+
+<small class="text-muted font-monospace">
+
+SN: {{ sale.phone_listing.imei_number|truncatechars:12 }}
+
+</small>
+
+</td>
+
+<td>
+
+<div class="small">
+
+{{ sale.buyer.email }}
+
+</div>
+
+<span class="badge bg-success-subtle text-success small">
+
+PAID
+
+</span>
+
+</td>
+
+<td class="text-end pe-4 fw-bold text-success" style="font-size:18px">
+
+₹{{ sale.total_price }}
+
+</td>
+
+</tr>
+
+{% empty %}
+
+<tr>
+
+<td colspan="5" class="text-center py-5">
+
+<i class="bi bi-folder-x display-4 text-muted opacity-25"></i>
+
+<p class="text-muted mt-3">
+No data available for the selected period
+</p>
+
+</td>
+
+</tr>
+
+{% endfor %}
+
+</tbody>
+
+</table>
+
+</div>
+
+</div>
+
+<!-- Print footer -->
+
+<div class="d-none d-print-block mt-5 text-center">
+
+<hr>
+
+<p class="text-muted small">
+
+Automated sales report generated from PhoneBazar Retailer Panel • Surat, Gujarat
+
+</p>
+
+</div>
+
+</div>
+
 {% endblock %}

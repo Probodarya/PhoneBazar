@@ -1,126 +1,279 @@
-<style>
-    /* Chat Window Background Pattern */
-    #chatWindow {
-        background-color: #f0f2f5;
-        background-image: radial-gradient(#d1d1d1 0.5px, transparent 0.5px);
-        background-size: 20px 20px; /* Subtle dot pattern */
-    }
-
-    /* Message Bubbles */
-    .message-bubble {
-        padding: 12px 16px;
-        font-size: 0.95rem;
-        line-height: 1.5;
-        position: relative;
-        transition: transform 0.2s ease;
-    }
-
-    /* Support Message (Left) */
-    .support-msg {
-        background: #ffffff;
-        border-bottom-left-radius: 4px !important;
-        border: 1px solid #e9ecef;
-    }
-
-    /* User Message (Right) */
-    .user-msg {
-        background-color: #2eaf7d;
-        color: white !important;
-        border-bottom-right-radius: 4px !important;
-        box-shadow: 0 4px 12px rgba(46, 175, 125, 0.2);
-    }
-
-    /* Input Area Styling */
-    .chat-input-container {
-        box-shadow: 0 -5px 20px rgba(0,0,0,0.03);
-    }
-
-    .form-control:focus {
-        box-shadow: none;
-        background-color: #ffffff !important;
-        border: 1px solid #2eaf7d !important;
-    }
-
-    /* Typing Animation placeholder */
-    .online-indicator {
-        width: 10px;
-        height: 10px;
-        display: inline-block;
-        background: #2eaf7d;
-        border-radius: 50%;
-        margin-right: 5px;
-        animation: pulse 2s infinite;
-    }
-
-    @keyframes pulse {
-        0% { transform: scale(0.9); opacity: 0.7; }
-        50% { transform: scale(1.1); opacity: 1; }
-        100% { transform: scale(0.9); opacity: 0.7; }
-    }
-</style>
-
 {% extends 'base.html' %}
 
 {% block content %}
-<div class="flex-grow-1 bg-light vh-100 d-flex flex-column border-start">
-    <div class="bg-white p-3 shadow-sm d-flex align-items-center justify-content-between sticky-top">
-        <div class="d-flex align-items-center">
-            <div class="rounded-circle p-2 me-3 position-relative" style="background-color: #eaf7f2;">
-                <i class="bi bi-headset fs-4" style="color: #2eaf7d;"></i>
-                <span class="position-absolute bottom-0 end-0 p-1 bg-success border border-light rounded-circle"></span>
-            </div>
-            <div>
-                <h6 class="fw-bold mb-0">PhoneBazar Expert Support</h6>
-                <small class="text-muted"><span class="online-indicator"></span> Typing typically in minutes</small>
-            </div>
-        </div>
-        <button class="btn btn-sm btn-light rounded-pill border">Close Chat</button>
-    </div>
 
-    <div class="flex-grow-1 p-4 overflow-auto d-flex flex-column" id="chatWindow">
-        {% for msg in chat_messages %}
-            {% if msg.is_from_support %}
-                <div class="align-self-start mb-4" style="max-width: 80%;">
-                    <div class="message-bubble support-msg rounded-4 shadow-sm">
-                        {{ msg.message }}
-                    </div>
-                    <small class="text-muted ms-2 mt-1 d-block" style="font-size: 0.7rem;">
-                        <i class="bi bi-check2"></i> {{ msg.timestamp|time:"H:i" }}
-                    </small>
-                </div>
-            {% else %}
-                <div class="align-self-end mb-4" style="max-width: 80%;">
-                    <div class="message-bubble user-msg rounded-4 shadow-sm">
-                        {{ msg.message }}
-                    </div>
-                    <small class="text-muted me-2 mt-1 d-block text-end" style="font-size: 0.7rem;">
-                        {{ msg.timestamp|time:"H:i" }} <i class="bi bi-check2-all text-primary"></i>
-                    </small>
-                </div>
-            {% endif %}
-        {% empty %}
-            <div class="text-center my-auto">
-                <div class="bg-white d-inline-block p-5 rounded-5 shadow-sm">
-                    <i class="bi bi-chat-heart display-4 text-teal mb-3" style="color: #2eaf7d;"></i>
-                    <h5 class="fw-bold">Welcome to PhoneBazar Surat</h5>
-                    <p class="text-muted small">Ask us about verification, shipping, or orders!</p>
-                </div>
-            </div>
-        {% endfor %}
-    </div>
+<style>
 
-    <div class="p-3 bg-white border-top chat-input-container">
-        <form method="POST" class="d-flex align-items-center bg-light rounded-pill p-1 ps-3">
-            {% csrf_token %}
-            <button type="button" class="btn text-muted p-0 me-2"><i class="bi bi-plus-circle fs-5"></i></button>
-            <input type="text" name="message" class="form-control border-0 bg-transparent py-2" 
-                   placeholder="Type your question..." autocomplete="off" required>
-            <button type="submit" class="btn rounded-circle shadow-sm d-flex align-items-center justify-content-center" 
-                    style="background-color: #2eaf7d; color: white; width: 40px; height: 40px;">
-                    <text class="visually-hidden" align="center">Send </text>
-                <i class="bi bi-send-fill"></i>
-            </button>
-        </form>
-    </div>
+/* Background */
+
+#chatWindow{
+background:#f5f7fb;
+background-image: radial-gradient(#d6d6d6 0.6px, transparent 0.6px);
+background-size:18px 18px;
+}
+
+/* Chat container */
+
+.chat-container{
+height:calc(100vh - 80px);
+display:flex;
+flex-direction:column;
+}
+
+/* Header */
+
+.chat-header{
+background:white;
+border-bottom:1px solid #eee;
+}
+
+/* Message bubble */
+
+.message-bubble{
+padding:12px 16px;
+font-size:15px;
+line-height:1.4;
+position:relative;
+border-radius:16px;
+}
+
+/* Support message */
+
+.support-msg{
+background:white;
+border:1px solid #eee;
+border-bottom-left-radius:4px;
+}
+
+/* User message */
+
+.user-msg{
+background:#2eaf7d;
+color:white;
+border-bottom-right-radius:4px;
+}
+
+/* Message hover */
+
+.message-bubble:hover{
+transform:translateY(-1px);
+}
+
+/* Timestamp */
+
+.msg-time{
+font-size:11px;
+opacity:0.7;
+}
+
+/* Chat input */
+
+.chat-input{
+background:white;
+border-top:1px solid #eee;
+}
+
+/* Input field */
+
+.chat-input input{
+border:none;
+background:transparent;
+outline:none;
+}
+
+/* Send button */
+
+.send-btn{
+background:#2eaf7d;
+color:white;
+width:42px;
+height:42px;
+border-radius:50%;
+display:flex;
+align-items:center;
+justify-content:center;
+}
+
+.send-btn:hover{
+background:#259d6e;
+}
+
+/* Online indicator */
+
+.online-dot{
+width:10px;
+height:10px;
+background:#2eaf7d;
+border-radius:50%;
+display:inline-block;
+margin-right:6px;
+animation:pulse 2s infinite;
+}
+
+@keyframes pulse{
+0%{transform:scale(.9);opacity:.7}
+50%{transform:scale(1.1);opacity:1}
+100%{transform:scale(.9);opacity:.7}
+}
+
+.send-btn{
+background:#2eaf7d;
+color:white;
+width:42px;
+height:42px;
+border-radius:50%;
+border:none;
+display:flex;
+align-items:center;
+justify-content:center;
+transition:0.2s;
+}
+
+.send-btn:hover{
+background:#259d6e;
+transform:scale(1.05);
+box-shadow:0 5px 12px rgba(46,175,125,0.3);
+}
+
+.send-btn:active{
+transform:scale(0.95);
+}
+</style>
+
+
+
+<div class="container-fluid chat-container">
+
+<!-- HEADER -->
+
+<div class="chat-header p-3 d-flex justify-content-between align-items-center">
+
+<div class="d-flex align-items-center">
+
+<div class="rounded-circle p-2 me-3" style="background:#eaf7f2">
+<i class="bi bi-headset fs-4 text-success"></i>
 </div>
+
+<div>
+
+<h6 class="fw-bold mb-0">PhoneBazar Support</h6>
+
+<small class="text-muted">
+<span class="online-dot"></span>Online
+</small>
+
+</div>
+
+</div>
+<a href="{% url 'Buyer_dashboard' %}" 
+class="btn btn-sm btn-light border rounded-pill">
+<i class="bi bi-x-lg"></i> Close
+</a>
+</div>
+
+
+
+<!-- CHAT WINDOW -->
+
+<div id="chatWindow" class="flex-grow-1 p-4 overflow-auto d-flex flex-column">
+
+{% for msg in chat_messages %}
+
+{% if msg.is_from_support %}
+
+<div class="align-self-start mb-3" style="max-width:75%">
+
+<div class="message-bubble support-msg shadow-sm">
+
+{{ msg.message }}
+
+</div>
+
+<div class="msg-time text-muted mt-1">
+
+{{ msg.timestamp|time:"H:i" }}
+
+</div>
+
+</div>
+
+{% else %}
+
+<div class="align-self-end mb-3 text-end" style="max-width:75%">
+
+<div class="message-bubble user-msg shadow-sm">
+
+{{ msg.message }}
+
+</div>
+
+<div class="msg-time text-muted mt-1">
+
+{{ msg.timestamp|time:"H:i" }} ✓✓
+
+</div>
+
+</div>
+
+{% endif %}
+
+{% empty %}
+
+<div class="text-center my-auto">
+
+<div class="bg-white p-5 rounded-4 shadow-sm d-inline-block">
+
+<i class="bi bi-chat-heart fs-1 text-success"></i>
+
+<h5 class="mt-3 fw-bold">Welcome to PhoneBazar</h5>
+
+<p class="text-muted small">
+Ask anything about phones, delivery, or orders.
+</p>
+
+</div>
+
+</div>
+
+{% endfor %}
+
+</div>
+
+
+
+<!-- INPUT -->
+
+<div class="chat-input p-3">
+<form method="POST" class="d-flex align-items-center">
+{% csrf_token %}
+
+<input 
+type="text"
+name="message"
+class="form-control border-0"
+placeholder="Type your message..."
+required>
+
+<button type="submit" class="send-btn ms-2">
+    Send
+<i class="bi bi-send-fill"></i>
+</button>
+
+</form> 
+
+</div>
+
+</div>
+
+
+
+<!-- Auto scroll to bottom -->
+
+<script>
+
+var chatWindow=document.getElementById("chatWindow");
+chatWindow.scrollTop=chatWindow.scrollHeight;
+
+</script>
+
 {% endblock %}

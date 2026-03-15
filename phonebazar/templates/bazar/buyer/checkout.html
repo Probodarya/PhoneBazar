@@ -1,0 +1,126 @@
+{% extends "base.html" %}
+{% block content %}
+
+<div class="container py-5">
+
+<div class="row">
+
+<div class="col-md-7">
+
+<div class="card p-4 shadow-sm">
+
+<h4>Order Details</h4>
+
+<img src="{{ phone.image.url }}" style="width:120px">
+
+<h5>{{ phone.brand }} {{ phone.model_name }}</h5>
+
+<p>IMEI: {{ phone.imei_number }}</p>
+
+<h3 class="text-primary">
+₹{{ phone.price }}
+</h3>
+
+<hr>
+
+<h5>Shipping Address</h5>
+
+{% if address %}
+
+<p>
+{{ address.full_name }} <br>
+{{ address.address_line }} <br>
+{{ address.city }} - {{ address.pincode }}
+</p>
+
+{% else %}
+
+<a href="{% url 'saved_addresses' %}" class="btn btn-warning">
+Add Address
+</a>
+
+{% endif %}
+
+</div>
+
+</div>
+
+<div class="col-md-5">
+
+<div class="card p-4 shadow-sm">
+
+<h4>Payment</h4>
+
+<h3>₹{{ phone.price }}</h3>
+
+<button id="rzp-button"
+class="btn btn-primary w-100">
+
+Pay with Razorpay
+
+</button>
+
+</div>
+
+</div>
+
+</div>
+
+</div>
+
+<form id="payment-form" method="POST" action="{% url 'payment_verify' phone.id %}">
+{% csrf_token %}
+
+<input type="hidden" name="razorpay_payment_id" id="payment_id">
+<input type="hidden" name="razorpay_order_id" id="order_id">
+<input type="hidden" name="razorpay_signature" id="signature">
+
+</form>
+
+<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+
+<script>
+
+var options = {
+
+"key": "{{ razorpay_key }}",
+
+"amount": "{{ payment.amount }}",
+
+"currency": "INR",
+
+"name": "PhoneBazar",
+
+"description": "Phone Purchase",
+
+"order_id": "{{ payment.id }}",
+
+"handler": function (response){
+
+document.getElementById("payment_id").value =
+response.razorpay_payment_id;
+
+document.getElementById("order_id").value =
+response.razorpay_order_id;
+
+document.getElementById("signature").value =
+response.razorpay_signature;
+
+document.getElementById("payment-form").submit();
+
+}
+
+};
+
+var rzp = new Razorpay(options);
+
+document.getElementById("rzp-button").onclick = function(e){
+
+rzp.open();
+e.preventDefault();
+
+}
+
+</script>
+
+{% endblock %}

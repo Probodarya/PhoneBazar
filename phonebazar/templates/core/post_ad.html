@@ -4,148 +4,317 @@
 {% block title %}Sell Your Phone | PhoneBazar Surat{% endblock %}
 
 {% block content %}
+
 <style>
-    /* Integrated CSS */
-    .listing-card { border: none; border-radius: 20px; box-shadow: 0 15px 35px rgba(0,0,0,0.1); overflow: hidden; }
-    .seller-sidebar { background: linear-gradient(180deg, #3f51b5 0%, #2c387e 100%); color: white; padding: 40px; }
-    .form-container { padding: 40px; background: white; }
-    .form-label { font-weight: 700; color: #444; font-size: 0.9rem; margin-bottom: 8px; }
-    .form-control, .form-select, textarea { border-radius: 10px; padding: 12px; border: 1px solid #e0e6ed; transition: all 0.3s; width: 100%; }
-    .form-control:focus { border-color: #3f51b5; box-shadow: 0 0 0 3px rgba(63, 81, 181, 0.1); outline: none; }
-    .btn-submit { background-color: #2eaf7d; border: none; border-radius: 50px; padding: 15px; font-weight: 800; color: white; transition: 0.2s; width: 100%; }
-    .btn-submit:hover { background-color: #248b63; transform: translateY(-2px); }
-    .upload-box { border: 2px dashed #3f51b5; border-radius: 15px; padding: 30px; background: #f8faff; text-align: center; }
+
+.sell-hero{
+background:linear-gradient(120deg,#eef2ff,#ffffff);
+padding:60px 0;
+margin-bottom:40px;
+}
+
+.sell-card{
+border:none;
+border-radius:18px;
+box-shadow:0 15px 35px rgba(0,0,0,0.08);
+overflow:hidden;
+}
+
+.sidebar{
+background:linear-gradient(180deg,#4f46e5,#3730a3);
+color:white;
+padding:35px;
+}
+
+.form-area{
+padding:40px;
+background:white;
+}
+
+.form-label{
+font-weight:600;
+font-size:14px;
+color:#444;
+margin-bottom:6px;
+}
+
+.form-control,
+.form-select,
+textarea{
+border-radius:10px;
+border:1px solid #e3e8ef;
+padding:12px;
+transition:0.3s;
+}
+
+.form-control:focus{
+border-color:#4f46e5;
+box-shadow:0 0 0 3px rgba(79,70,229,0.15);
+}
+
+.submit-btn{
+background:#10b981;
+border:none;
+padding:14px;
+font-weight:700;
+border-radius:40px;
+color:white;
+transition:0.25s;
+}
+
+.submit-btn:hover{
+background:#059669;
+transform:translateY(-2px);
+}
+
+.upload-box{
+border:2px dashed #4f46e5;
+border-radius:14px;
+padding:30px;
+background:#f6f8ff;
+text-align:center;
+transition:0.3s;
+}
+
+.upload-box:hover{
+background:#eef2ff;
+}
+
+.tip-box{
+background:rgba(255,255,255,0.15);
+border-radius:10px;
+padding:15px;
+}
+
+.steps{
+display:flex;
+gap:15px;
+margin-bottom:30px;
+}
+
+.step{
+flex:1;
+background:#f1f5ff;
+padding:10px;
+border-radius:10px;
+text-align:center;
+font-size:13px;
+font-weight:600;
+}
+
 </style>
 
+<!-- HERO -->
 
+<section class="sell-hero">
+<div class="container text-center">
 
-<div class="container py-5">
-    <div class="row justify-content-center">
-        <div class="col-lg-10">
-            <div class="card listing-card">
-                <div class="row g-0">
-                    <div class="col-md-4 seller-sidebar d-flex flex-column justify-content-between">
-                        <div>
-                            <h3 class="fw-bold mb-4">Seller Portal</h3>
-                            <p class="opacity-75 small">Join Surat's most trusted marketplace.</p>
-                            
-                            <div class="mt-4 p-3 rounded-3 bg-white bg-opacity-10 border border-white border-opacity-25">
-                                <h6 class="fw-bold mb-2 small"><i class="bi bi-info-circle me-1"></i> Writing Tips:</h6>
-                                <ul class="list-unstyled x-small opacity-90 mb-0">
-                                    <li class="mb-1"> Mention any minor scratches</li>
-                                    <li class="mb-1">List included accessories</li>
-                                    <li class="mb-1">Specify battery health  %</li>
-                                </ul>
-                            </div>
-                        </div>
-                        <div class="mt-4 pt-4 border-top border-white border-opacity-25">
-                            <small class="opacity-50">Trusted by thousands in Surat</small>
-                        </div>
-                    </div>
+<h1 class="fw-bold mb-3">
+Sell Your Phone in <span class="text-primary">3 Easy Steps</span>
+</h1>
 
-                    <div class="col-md-8 form-container">
-                        <h2 class="fw-bold mb-4">Device Information</h2>
-                        <form method="POST" enctype="multipart/form-data">
-                            {% csrf_token %}
-                            
-                            <div class="row">
-                                <div class="col-md-6 mb-3">
-                                    <label class="form-label">Brand</label>
-                                    {{ form.brand }}
-                                </div>
-                                <div class="col-md-6 mb-3">
-                                    <label class="form-label">Model Name</label>
-                                    {{ form.model_name }}
-                                </div>
-                            </div>
-                            <div class="row">
-                                <div class="col-md-6 mb-3">
-                                    <label class="form-label">Price (₹)</label>
-                                    {{ form.price }}
-                                </div>
-                                <div class="col-md-6 mb-3">
-                                    <label class="form-label">IMEI Number (15 Digits)</label>
-                                    {{ form.imei_number }}
-                                    <small class="text-muted d-block mt-1">Dial <strong>*#06#</strong> on your phone to find it.</small>
-                                </div>
-                            </div>
+<div class="steps">
+<div class="step">1️⃣ Enter Phone Details</div>
+<div class="step">2️⃣ Upload Photos</div>
+<div class="step">3️⃣ Submit for Verification</div>
+</div>
 
-                          
-                            </div>
+</div>
+</section>
 
-                            <div class="mb-3">
-                                <label class="form-label">Detailed Description</label>
-                                {{ form.description }}
-                                <small class="text-muted d-block mt-1">Be honest about the condition for faster verification.</small>
-                            </div>
+<div class="container pb-5">
 
-                            <div class="mb-4">
-                                <label class="form-label">Device Image</label>
-                                <div class="upload-box">
-                                    {{ form.image }}
-                                    <span class="d-block text-muted small mt-2">Clear photos sell 40% faster</span>
-                                </div>
-                            </div>
+<div class="row justify-content-center">
 
-                            <button type="submit" class="btn btn-submit shadow-sm">
-                                Submit for Verification <i class="bi bi-shield-check ms-2"></i>
-                            </button>
-                        </form>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
+<div class="col-lg-10">
+
+<div class="card sell-card">
+
+<div class="row g-0">
+
+<!-- SIDEBAR -->
+
+<div class="col-md-4 sidebar d-flex flex-column justify-content-between">
+
+<div>
+
+<h4 class="fw-bold mb-3">Seller Portal</h4>
+
+<p class="small opacity-75">
+Join Surat’s fastest growing phone marketplace.
+</p>
+
+<div class="tip-box mt-4">
+
+<h6 class="fw-bold mb-2 small">
+<i class="bi bi-lightbulb"></i> Listing Tips
+</h6>
+
+<ul class="list-unstyled small mb-0">
+
+<li>✔ Mention scratches honestly</li>
+<li>✔ Include accessories</li>
+<li>✔ Mention battery health</li>
+
+</ul>
+
+</div>
+
+</div>
+
+<small class="opacity-50">
+Trusted by sellers across Surat
+</small>
+
+</div>
+
+<!-- FORM -->
+
+<div class="col-md-8 form-area">
+
+<h3 class="fw-bold mb-4">
+Device Information
+</h3>
+
+<form method="POST" enctype="multipart/form-data">
+
+{% csrf_token %}
+
+<div class="row">
+
+<div class="col-md-6 mb-3">
+<label class="form-label">Brand</label>
+{{ form.brand }}
+</div>
+
+<div class="col-md-6 mb-3">
+<label class="form-label">Model Name</label>
+{{ form.model_name }}
+</div>
+
+</div>
+
+<div class="row">
+
+<div class="col-md-6 mb-3">
+<label class="form-label">Price (₹)</label>
+{{ form.price }}
+</div>
+
+<div class="col-md-6 mb-3">
+<label class="form-label">IMEI Number</label>
+{{ form.imei_number }}
+<small class="text-muted">
+Dial <b>*#06#</b> to find IMEI
+</small>
+</div>
+
+</div>
+
+<div class="mb-3">
+
+<label class="form-label">
+Detailed Description
+</label>
+
+{{ form.description }}
+
+</div>
+
+<div class="mb-4">
+
+<label class="form-label">
+Upload Device Image
+</label>
+
+<div class="upload-box">
+
+{{ form.image }}
+
+<span class="d-block text-muted small mt-2 upload-label">
+Clear photos help you sell faster
+</span>
+
+</div>
+
+</div>
+
+<button type="submit" class="submit-btn w-100">
+
+Submit for Verification <i class="bi bi-shield-check ms-2"></i>
+
+</button>
+
+</form>
+
+</div>
+
+</div>
+
+</div>
+
+</div>
+
+</div>
+
 </div>
 
 <script>
-    // 1. Comprehensive Brand & Model Data
-    const mobileData = {
-        'Apple': ['iPhone 17 Air', 'iPhone 17 Pro Max', 'iPhone 17 Pro', 'iPhone 17', 'iPhone 16 Series', 'iPhone 15 Series', 'iPhone SE (2025)'],
-        'Samsung': ['Galaxy S26 Ultra', 'Galaxy S26+', 'Galaxy S26', 'Galaxy Z Fold 8', 'Galaxy Z Flip 8', 'Galaxy A56 5G', 'Galaxy A36'],
-        'Google': ['Pixel 11 Pro XL', 'Pixel 11 Pro', 'Pixel 11', 'Pixel 10a', 'Pixel Fold 3'],
-        'OnePlus': ['OnePlus 14 Pro', 'OnePlus 14', 'OnePlus 13R', 'OnePlus Nord 5', 'OnePlus Nord CE5'],
-        'Xiaomi': ['Xiaomi 17 Ultra', 'Xiaomi 17', 'Redmi Note 15 Pro+', 'Redmi Note 15', 'Poco F8 Pro'],
-        'Vivo': ['Vivo X200 Pro', 'Vivo V40 Pro', 'Vivo V40', 'Vivo T4x'],
-        'Oppo': ['Oppo Find X8 Ultra', 'Oppo Reno 13 Pro', 'Oppo Reno 13', 'Oppo F27 Pro+']
-    };
 
-    // Grab elements by their likely Django-generated IDs
-    // Note: If your IDs are different, update 'id_brand' and 'id_model_name'
-    const brandSelect = document.querySelector('select[name="brand"]');
-    const modelSelect = document.querySelector('select[name="model_name"]');
-    const imageInput = document.querySelector('input[type="file"]');
-    const uploadBox = document.querySelector('.upload-box span');
+const brandSelect=document.querySelector('select[name="brand"]');
+const modelSelect=document.querySelector('select[name="model_name"]');
 
-    // 2. Dynamic Dropdown Logic
-    if (brandSelect && modelSelect) {
-        brandSelect.addEventListener('change', function() {
-            const selectedBrand = this.value;
-            
-            // Clear previous options
-            modelSelect.innerHTML = '<option value="">Select Model</option>';
-            
-            if (selectedBrand && mobileData[selectedBrand]) {
-                mobileData[selectedBrand].forEach(model => {
-                    const option = document.createElement('option');
-                    option.value = model;
-                    option.textContent = model;
-                    modelSelect.appendChild(option);
-                });
-            }
-        });
-    }
+const mobileData={
+Apple:["iPhone 17","iPhone 16","iPhone 15","iPhone 14"],
+Samsung:["Galaxy S26","Galaxy S25","Galaxy Z Fold","Galaxy A56"],
+OnePlus:["OnePlus 14","OnePlus 13","Nord 5"],
+Xiaomi:["Xiaomi 17","Redmi Note 15","Poco F8"],
+Vivo:["Vivo X200","Vivo V40"],
+Oppo:["Reno 13","Find X8"]
+};
 
-    // 3. Multi-Image Selection Label
-    if (imageInput && uploadBox) {
-        imageInput.addEventListener('change', function(e) {
-            const files = e.target.files;
-            if (files.length > 0) {
-                uploadBox.innerHTML = `<strong class="text-primary"><i class="bi bi-check-circle-fill"></i> ${files.length} images selected</strong>`;
-            } else {
-                uploadBox.innerHTML = "Clear photos sell 40% faster";
-            }
-        });
-    }
+if(brandSelect){
+
+brandSelect.addEventListener("change",function(){
+
+modelSelect.innerHTML='<option value="">Select Model</option>';
+
+const models=mobileData[this.value];
+
+if(models){
+
+models.forEach(m=>{
+
+const option=document.createElement("option");
+option.value=m;
+option.textContent=m;
+modelSelect.appendChild(option);
+
+});
+
+}
+
+});
+
+}
+
+const imageInput=document.querySelector('input[type="file"]');
+const uploadLabel=document.querySelector('.upload-label');
+
+if(imageInput){
+
+imageInput.addEventListener("change",function(){
+
+if(this.files.length>0){
+
+uploadLabel.innerHTML=`${this.files.length} image selected`;
+
+}
+
+});
+
+}
+
 </script>
+
 {% endblock %}

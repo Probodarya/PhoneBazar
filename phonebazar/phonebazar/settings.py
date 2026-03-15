@@ -140,3 +140,6 @@ EMAIL_PORT = 587
 EMAIL_USE_TLS = True
 EMAIL_HOST_USER = 'princepython23@gmail.com'
 EMAIL_HOST_PASSWORD = 'rxlc djew jbqw vcec' #app password
+
+RAZORPAY_KEY_ID = "xxxxxxxxxxxxxxxx"
+RAZORPAY_KEY_SECRET = "yyyyyyyyyyyyy"

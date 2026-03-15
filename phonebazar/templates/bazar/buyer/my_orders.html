@@ -1,0 +1,69 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<div class="container py-5">
+
+<h3 class="mb-4">My Purchases</h3>
+
+{% for order in orders %}
+
+<div class="card p-3 mb-3">
+
+<div class="d-flex justify-content-between">
+
+<div>
+
+<h6>
+
+{{ order.phone_listing.brand }}
+{{ order.phone_listing.model_name }}
+
+</h6>
+
+<small class="text-muted">
+
+Order #PB{{ order.id }}
+
+</small>
+
+</div>
+
+<div>
+
+<strong>₹{{ order.total_price }}</strong>
+
+<br>
+
+<span class="badge bg-success">
+
+{{ order.get_status_display }}
+
+</span>
+
+</div>
+
+</div>
+
+</div>
+
+{% empty %}
+
+<div class="text-center py-5">
+
+<h4>No Orders Yet</h4>
+
+<a href="{% url 'marketplace_home' %}"
+class="btn btn-primary">
+
+Start Shopping
+
+</a>
+
+</div>
+
+{% endfor %}
+
+</div>
+
+{% endblock %}

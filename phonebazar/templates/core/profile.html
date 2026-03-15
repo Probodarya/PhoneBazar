@@ -2,61 +2,204 @@
 {% block title %}My Profile | PhoneBazar{% endblock %}
 
 {% block content %}
-<div class="legal-container" style="max-width: 700px;">
-    <div style="text-align: center; margin-bottom: 30px;">
-        <div style="width: 80px; height: 80px; background: var(--primary-green); color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 32px; font-weight: bold; margin: 0 auto 15px;">
-            {{ user.email|first|upper }}
-        </div>
-        <h1 style="margin: 0;">{{ user.get_full_name|default:user.firstname }}</h1>
-        <span class="user-badge" style="font-size: 1rem; padding: 5px 20px;">
-            Account Type: {{ user.role }}
-        </span>
-    </div>
 
-    <div style="border-top: 1px solid #eee; padding-top: 20px;">
-        <h3 style="color: var(--dark-green);">Account Details</h3>
-        
-        <table style="width: 100%; border-collapse: collapse;">
-         
-            <tr style="border-bottom: 1px solid #f9f9f9;">
-                <td style="padding: 15px 0; color: #888;">Email Address</td>
-                <td style="padding: 15px 0; font-weight: 600;">{{ user.email }}</td>
-            </tr>
-            <tr style="border-bottom: 1px solid #f9f9f9;">
-                <td style="padding: 15px 0; color: #888;">Full Name</td>
-                <td style="padding: 15px 0; font-weight: 600;">{{ user.firstname }} {{ user.lastname }}</td>
-            </tr>
+<style>
 
-            <tr>
-                <td style="padding: 15px 0; color: #888;">Phone Number</td>
-                <td style="padding: 15px 0; font-weight: 600;">{{ user.mobile_number }}</td>
-            </tr>
+/* Page background */
+.profile-bg{
+background:#f8fafc;
+min-height:100vh;
+}
 
-            <tr>
-                <td style="padding: 15px 0; color: #888;">Gender</td>
-                <td style="padding: 15px 0; font-weight: 600;">{{ user.gender }}</td>
-            </tr>
-            <tr style="border-bottom: 1px solid #f9f9f9;">
-                <td style="padding: 15px 0; color: #888;">Location</td>
-                <td style="padding: 15px 0; font-weight: 600;">Surat, Gujarat</td>
-            </tr>
-            <tr>
-                <td style="padding: 15px 0; color: #888;">Account Status</td>
-                <td style="padding: 15px 0; font-weight: 600; color: {% if user.status == 'active' %}#28a745{% elif user.status == 'inactive' %}#ffc107{% elif user.status == 'blocked' %}#dc3545{% else %}#6c757d{% endif %};">
-                    {{ user.get_status_display }}
-                </td>
-            </tr>
-            <tr>
-                <td style="padding: 15px 0; color: #888;">Joined PhoneBazar</td>
-                <td style="padding: 15px 0; font-weight: 600;">{{ user.date_joined|date:"M d, Y" }}</td>
-            </tr>
-        </table>
-    </div>
-    
+/* Profile card */
+.profile-card{
+border-radius:20px;
+border:1px solid #eef2f7;
+transition:0.3s;
+}
 
-    <div style="margin-top: 40px; display: flex; gap: 15px;">
-        <a href="{% url 'edit_profile' %}" class="btn-primary" style="text-decoration: none; flex: 1; text-align: center;">Edit Profile</a>
-        <a href="{% url 'logout' %}" style="text-decoration: none; flex: 1; text-align: center; color: #dc3545; border: 1px solid #dc3545; padding: 10px; border-radius: 25px; font-weight: bold;">Logout</a>
-    </div>
+.profile-card:hover{
+box-shadow:0 15px 30px rgba(0,0,0,0.05);
+}
+
+/* Avatar circle */
+.profile-avatar{
+width:90px;
+height:90px;
+background:#1a237e;
+color:white;
+font-size:34px;
+font-weight:bold;
+display:flex;
+align-items:center;
+justify-content:center;
+border-radius:50%;
+margin:auto;
+}
+
+/* table rows */
+.profile-table td{
+padding:14px 0;
+border-bottom:1px solid #f1f5f9;
+}
+
+.profile-label{
+color:#6c757d;
+font-weight:500;
+}
+
+.profile-value{
+font-weight:600;
+}
+
+/* buttons */
+
+.btn-edit{
+background:#1a237e;
+color:white;
+border-radius:30px;
+padding:10px;
+font-weight:600;
+}
+
+.btn-edit:hover{
+background:#0d155c;
+color:white;
+}
+
+.btn-logout{
+border:2px solid #dc3545;
+color:#dc3545;
+border-radius:30px;
+padding:10px;
+font-weight:600;
+}
+
+.btn-logout:hover{
+background:#dc3545;
+color:white;
+}
+
+</style>
+
+
+<div class="container profile-bg py-5">
+
+<div class="row justify-content-center">
+
+<div class="col-lg-7">
+
+<div class="card profile-card shadow-sm border-0 p-4">
+
+<!-- Profile Header -->
+
+<div class="text-center mb-4">
+
+<div class="profile-avatar mb-3">
+{{ user.firstname|first|upper }}
 </div>
+
+<h3 class="fw-bold mb-1">
+{{ user.firstname }} {{ user.lastname }}
+</h3>
+
+<span class="badge bg-light text-dark border">
+{{ user.role }} Account
+</span>
+
+</div>
+
+
+<!-- Account Details -->
+
+<h5 class="fw-bold mb-3">
+Account Details
+</h5>
+
+<table class="table profile-table">
+
+<tr>
+<td class="profile-label">Email Address</td>
+<td class="profile-value">{{ user.email }}</td>
+</tr>
+
+<tr>
+<td class="profile-label">Full Name</td>
+<td class="profile-value">
+{{ user.firstname }} {{ user.lastname }}
+</td>
+</tr>
+
+<tr>
+<td class="profile-label">Phone Number</td>
+<td class="profile-value">
+{{ user.mobile_number }}
+</td>
+</tr>
+
+<tr>
+<td class="profile-label">Gender</td>
+<td class="profile-value">
+{{ user.gender }}
+</td>
+</tr>
+
+<tr>
+<td class="profile-label">Location</td>
+<td class="profile-value">
+Surat, Gujarat
+</td>
+</tr>
+
+<tr>
+<td class="profile-label">Account Status</td>
+
+<td class="profile-value"
+style="color:{% if user.status == 'active' %}#28a745{% elif user.status == 'blocked' %}#dc3545{% else %}#ffc107{% endif %};">
+
+{{ user.get_status_display }}
+
+</td>
+
+</tr>
+
+<tr>
+<td class="profile-label">Joined</td>
+<td class="profile-value">
+{{ user.date_joined|date:"M d, Y" }}
+</td>
+</tr>
+
+</table>
+
+
+<!-- Buttons -->
+
+<div class="row mt-4 g-3">
+
+<div class="d-flex gap-3 mt-4 flex-wrap">
+
+<a href="{% url 'edit_profile' %}"
+class="btn btn-edit flex-fill text-center">
+Edit Profile
+</a>
+
+<a href="{% url 'logout' %}"
+class="btn btn-logout flex-fill text-center">
+Logout
+</a>
+
+</div>
+
+</div>
+
+
+</div>
+
+</div>
+
+</div>
+
+</div>
+
 {% endblock %}

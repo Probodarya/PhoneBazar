@@ -1,89 +1,324 @@
-{% extends 'base.html' %}
-{% include "{% static" %} 
+{% extends "base.html" %}
 {% block content %}
-<div class="container mt-5">
-    <div class="d-flex justify-content-between align-items-end mb-4">
-        <div>
-            <h2 class="fw-bold text-dark mb-0">Seller Console</h2>
-            <p class="text-muted small">Managing inventory for <strong>{{ request.user.email }}</strong></p>
-        </div>
-        <a href="{% url 'post_phone_ad' %}" class="btn btn-primary shadow-sm">
-            + List a New Device
-        </a>
-    </div>
 
-    <div class="row g-4 mb-5 text-center">
-        <div class="col-md-3">
-            <div class="card bg-primary text-white p-4 shadow-sm border-0">
-                <h6 class="text-uppercase small opacity-75">My Listings</h6>
-                <h2 class="display-6 fw-bold mb-0">{{ stats.total }}</h2>
-            </div>
-        </div>
-        <div class="col-md-3">
-            <div class="card bg-success text-white p-4 shadow-sm border-0">
-                <h6 class="text-uppercase small opacity-75">Live Ads</h6>
-                <h2 class="display-6 fw-bold mb-0">{{ stats.verified }}</h2>
-            </div>
-        </div>
-        <div class="col-md-3">
-            <div class="card bg-warning text-dark p-4 shadow-sm border-0">
-                <h6 class="text-uppercase small opacity-75">In Verification</h6>
-                <h2 class="display-6 fw-bold mb-0">{{ stats.pending }}</h2>
-            </div>
-        </div>
-        <div class="col-md-3">
-            <div class="card bg-white text-dark p-4 shadow-sm border-0">
-                <h6 class="text-uppercase small text-muted">Rating</h6>
-                <h2 class="display-6 fw-bold text-warning mb-0">
-                    {% if avg_score > 0 %}{{ avg_score }} <span class="fs-4">⭐</span>{% else %}--{% endif %}
-                </h2>
-            </div>
-        </div>
-    </div>
+<style>
 
-    <div class="card shadow-sm border-0 overflow-hidden">
-        <div class="card-header bg-white py-3">
-            <h5 class="mb-0 fw-bold">Device Inventory</h5>
-        </div>
-        <div class="table-responsive">
-            <table class="table table-hover align-middle">
-                <thead>
-                    <tr>
-                        <th class="ps-4">Model Details</th>
-                        <th>Price</th>
-                        <th>Condition Status</th>
-                        <th class="text-end pe-4">Manage</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for listing in listings %}
-                    <tr>
-                        <td class="ps-4">
-                            <span class="d-block fw-bold text-dark">{{ listing.brand }}</span>
-                            <span class="text-muted small">{{ listing.model_name }}</span>
-                        </td>
-                        <td class="fw-bold">₹{{ listing.price }}</td>
-                        <td>
-                            {% if listing.is_verified %}
-                                <span class="badge bg-success-subtle text-success">Verified</span>
-                            {% else %}
-                                <span class="badge bg-warning-subtle text-warning-emphasis">Testing...</span>
-                            {% endif %}
-                        </td>
-                        <td class="text-end pe-4">
-                            <button class="btn btn-sm btn-outline-secondary"><i class="bi bi-pencil"></i></button>
-                        </td>
-                    </tr>
-                    {% empty %}
-                    <tr>
-                        <td colspan="4" class="text-center py-5 text-muted">
-                            No devices found. Start selling today!
-                        </td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-        </div>
-    </div>
+.dashboard-bg{
+background:linear-gradient(180deg,#f8fafc,#eef2f7);
+min-height:100vh;
+}
+
+/* welcome card */
+
+.welcome-card{
+border-radius:20px;
+background:linear-gradient(135deg,#1a237e,#3949ab);
+color:white;
+position:relative;
+overflow:hidden;
+}
+
+.welcome-card::after{
+content:"📱";
+position:absolute;
+right:20px;
+bottom:-10px;
+font-size:120px;
+opacity:.08;
+}
+
+/* stat cards */
+
+.stat-card{
+border-radius:16px;
+border:none;
+transition:.3s;
+background:white;
+}
+
+.stat-card:hover{
+transform:translateY(-5px);
+box-shadow:0 15px 35px rgba(0,0,0,.08);
+}
+
+.stat-icon{
+font-size:24px;
+margin-bottom:6px;
+}
+
+/* listing card */
+
+.listing-card{
+border-radius:18px;
+transition:.3s;
+}
+
+.listing-card:hover{
+transform:translateY(-4px);
+box-shadow:0 15px 35px rgba(0,0,0,0.08);
+}
+
+/* rating */
+
+.star{
+color:#ffc107;
+}
+
+/* phone image */
+
+.phone-img{
+height:120px;
+object-fit:contain;
+}
+
+/* order row */
+
+.order-row{
+display:flex;
+justify-content:space-between;
+padding:10px 0;
+border-bottom:1px solid #f1f3f5;
+}
+.btn-add-phone{
+background:linear-gradient(135deg,#3949ab,#1a237e);
+color:white;
+padding:10px 22px;
+border-radius:30px;
+font-weight:600;
+text-decoration:none;
+display:inline-flex;
+align-items:center;
+transition:all .3s;
+box-shadow:0 6px 15px rgba(57,73,171,.25);
+}
+
+.btn-add-phone:hover{
+transform:translateY(-2px);
+box-shadow:0 10px 25px rgba(57,73,171,.35);
+color:white;
+}
+</style>
+
+
+
+<div class="container dashboard-bg py-5">
+
+<!-- Welcome -->
+
+<div class="card welcome-card shadow-sm mb-5 p-4">
+
+<h4 class="fw-bold">
+Welcome back, {{ request.user.firstname }} 👋
+</h4>
+
+<p class="mb-0 opacity-75">
+Manage your listings and track your sales performance.
+</p>
+<a href="{% url 'post_phone_ad' %}" class="btn-add-phone">
+
+<i class="bi bi-plus-circle me-2"></i>
+Add New Phone
+
+</a>
 </div>
+
+
+
+<!-- Stats -->
+
+<div class="row g-4 mb-5">
+
+<div class="col-md-3">
+<div class="card stat-card shadow-sm p-4 text-center">
+
+<div class="stat-icon text-primary">
+<i class="bi bi-phone"></i>
+</div>
+
+<h5 class="fw-bold">{{ stats.total }}</h5>
+
+<small class="text-muted">Total Listings</small>
+
+</div>
+</div>
+
+
+<div class="col-md-3">
+<div class="card stat-card shadow-sm p-4 text-center">
+
+<div class="stat-icon text-success">
+<i class="bi bi-patch-check"></i>
+</div>
+
+<h5 class="fw-bold">{{ stats.verified }}</h5>
+
+<small class="text-muted">Verified</small>
+
+</div>
+</div>
+
+
+<div class="col-md-3">
+<div class="card stat-card shadow-sm p-4 text-center">
+
+<div class="stat-icon text-warning">
+<i class="bi bi-currency-rupee"></i>
+</div>
+
+<h5 class="fw-bold">₹{{ stats.revenue }}</h5>
+
+<small class="text-muted">Total Revenue</small>
+
+</div>
+</div>
+
+
+<div class="col-md-3">
+<div class="card stat-card shadow-sm p-4 text-center">
+
+<div class="stat-icon text-danger">
+<i class="bi bi-star-fill"></i>
+</div>
+
+<h5 class="fw-bold">{{ stats.rating }}⭐</h5>
+
+<small class="text-muted">Seller Rating</small>
+
+</div>
+</div>
+
+</div>
+
+
+
+<!-- Recent Orders -->
+
+<div class="card shadow-sm p-4 mb-5">
+
+<h5 class="fw-bold mb-4">
+Recent Orders
+</h5>
+
+{% for order in orders|slice:":5" %}
+
+<div class="order-row">
+
+<span>
+{{ order.phone_listing.brand }}
+{{ order.phone_listing.model_name }}
+</span>
+
+<span class="fw-bold text-success">
+₹{{ order.total_price }}
+</span>
+
+</div>
+
+{% empty %}
+
+<p class="text-muted">
+No orders yet
+</p>
+
+{% endfor %}
+
+</div>
+
+
+
+<!-- My Listings -->
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+
+
+
+
+
+</div>
+
+
+
+<div class="row g-4"> 
+     <h4 class="fw-bold">
+My Listings
+</h4>
+
+{% for listing in listings %}
+
+<div class="col-md-4">
+
+<div class="card listing-card shadow-sm border-0 h-100">
+
+<div class="card-body text-center">
+
+{% if listing.image %}
+
+<img src="{{ listing.image.url }}"
+class="img-fluid mb-3 phone-img">
+
+{% endif %}
+
+<h6 class="fw-bold">
+
+{{ listing.brand }}
+{{ listing.model_name }}
+
+</h6>
+
+<p class="text-primary fw-bold">
+
+₹{{ listing.price }}
+
+</p>
+
+{% if listing.is_verified %}
+
+<span class="badge bg-success">
+
+Verified
+
+</span>
+
+{% else %}
+
+<span class="badge bg-warning text-dark">
+
+Pending
+
+</span>
+
+{% endif %}
+
+</div>
+
+</div>
+
+</div>
+
+{% empty %}
+
+<div class="text-center py-5 bg-white rounded-4 shadow-sm">
+
+<i class="bi bi-phone display-4 text-muted opacity-25"></i>
+
+<h5 class="fw-bold mt-3">
+No Listings Yet
+</h5>
+
+<a href="{% url 'post_phone_ad' %}"
+class="btn btn-primary rounded-pill mt-3">
+
+Add Your First Phone
+
+</a>
+
+</div>
+
+{% endfor %}
+
+</div>
+
+
+</div>
+
 {% endblock %}

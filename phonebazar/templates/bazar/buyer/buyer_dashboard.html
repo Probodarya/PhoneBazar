@@ -1,165 +1,325 @@
+{% extends "base.html" %}
+
+{% block content %}
+
 <style>
-    /* Order Card Elevation */
-    .card.order-card {
-        transition: all 0.3s ease;
-        border-radius: 20px !important;
-    }
-    .card.order-card:hover {
-        transform: scale(1.01);
-        box-shadow: 0 10px 20px rgba(0,0,0,0.05) !important;
-    }
 
-    /* Progress Tracker Dots */
-    .status-dot {
-        width: 12px;
-        height: 12px;
-        border-radius: 50%;
-        display: inline-block;
-        margin-right: 8px;
-    }
-    .dot-escrow { background-color: #0dcaf0; box-shadow: 0 0 8px #0dcaf0; }
-    .dot-shipped { background-color: #0d6efd; box-shadow: 0 0 8px #0d6efd; }
-    .dot-delivered { background-color: #198754; box-shadow: 0 0 8px #198754; }
+.dashboard-bg{
+background:linear-gradient(180deg,#f8fafc,#eef2f7);
+min-height:100vh;
+}
 
-    /* Summary Stat Cards */
-    .stat-box {
-        border-radius: 16px;
-        border: 1px solid #f1f5f9 !important;
-    }
-  
-    /* Base Styling for the Outline Button */
-    .btn-outline-primary.rounded-pill {
-        border: 2px solid #1a237e; /* PhoneBazar Indigo */
-        color: #1a237e;
-        background: transparent;
-        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        font-size: 0.85rem;
-        letter-spacing: 0.3px;
-    }
+/* Welcome Card */
 
-    /* Hover State: Fills with Indigo and adds Glow */
-    .btn-outline-primary.rounded-pill:hover {
-        background-color: #1a237e !important;
-        color: #ffffff !important;
-        transform: translateY(-2px);
-        box-shadow: 0 5px 15px rgba(26, 35, 126, 0.2);
-    }
+.welcome-card{
+border-radius:22px;
+background:linear-gradient(135deg,#1a237e,#3949ab);
+color:white;
+position:relative;
+overflow:hidden;
+}
 
-    /* Icon Animation: Turns "PDF Red" on hover */
-    .btn-outline-primary:hover .bi-file-earmark-pdf {
-        color: #ff4d4d; /* Bright Red to signify PDF */
-        transition: color 0.2s ease;
-    }
+.welcome-card::after{
+content:"📱";
+position:absolute;
+right:20px;
+bottom:-10px;
+font-size:120px;
+opacity:.1;
+}
 
-    /* Active/Click effect */
-    .btn-outline-primary:active {
-        transform: scale(0.96);
-    }
+/* Stat Cards */
+
+.stat-card{
+border-radius:16px;
+border:none;
+transition:all .3s;
+background:white;
+}
+
+.stat-card:hover{
+transform:translateY(-5px);
+box-shadow:0 15px 35px rgba(0,0,0,.07);
+}
+
+.stat-icon{
+width:50px;
+height:50px;
+border-radius:12px;
+display:flex;
+align-items:center;
+justify-content:center;
+margin:auto;
+font-size:22px;
+}
+
+/* Orders */
+
+.order-card{
+border-radius:16px;
+transition:all .3s;
+}
+
+.order-card:hover{
+transform:translateY(-3px);
+box-shadow:0 15px 30px rgba(0,0,0,0.06);
+}
+
+/* Quick Actions */
+
+.quick-actions a{
+border-radius:30px;
+padding:10px 22px;
+font-weight:600;
+}
+
+.quick-actions a{
+font-weight:600;
+}
+
+.quick-actions .btn-outline-light{
+color:white;
+border-color:white;
+}
+
+.quick-actions .btn-outline-light:hover{
+background:white;
+color:#1a237e;
+}
 
 </style>
-<{% extends "base.html" %}  
-{% block content %}
-<div class="container py-5">
-    <div class="d-flex justify-content-between align-items-center mb-5">
-        <div>
-            <h2 class="fw-bold mb-0">My <span class="text-primary">Purchases</span></h2>
-            <p class="text-muted mb-0">Tracking your tech investments in Surat</p>
-        </div>
-        <div class="d-flex gap-3">
-            <div class="card stat-box shadow-sm p-3 bg-white">
-                <small class="text-uppercase text-muted fw-bold d-block mb-1" style="font-size: 0.6rem;">Active</small>
-                <h5 class="mb-0 fw-bold">{{ stats.active }}</h5>
-            </div>
-            <div class="card stat-box shadow-sm p-3 bg-white">
-                <small class="text-uppercase text-muted fw-bold d-block mb-1" style="font-size: 0.6rem;">Total Spent</small>
-                <h5 class="mb-0 fw-bold text-success">₹{{ stats.spent }}</h5>
-            </div>
-        </div>
-    </div>
 
-    {% for order in orders %}
-    <div class="card order-card shadow-sm border-0 mb-4 overflow-hidden">
-        <div class="card-body p-4">
-            <div class="row align-items-center">
-                <div class="col-lg-1 col-md-2 text-center mb-3 mb-md-0">
-                    {% if order.phone_listing.image %}
-                        <img src="{{ order.phone_listing.image.url }}" class="img-fluid rounded-3 border" style="width: 80px; height: 80px; object-fit: contain; background: #fff;">
-                    {% else %}
-                        <div class="bg-light rounded-3 border py-3 text-muted small">No Image</div>
-                    {% endif %}
-                </div>
 
-                <div class="col-lg-4 col-md-4">
-                    <h6 class="fw-bold text-dark mb-1">{{ order.phone_listing.brand }} {{ order.phone_listing.model_name }}</h6>
-                    <div class="d-flex align-items-center mb-2">
-                        <span class="badge bg-light text-muted border fw-normal me-2">#PB-{{ order.id }}</span>
-                        <small class="text-muted">{{ order.created_at|date:"d M Y" }}</small>
-                    </div>
-                    {% if order.tracking_number %}
-                        <small class="text-primary fw-bold"><i class="bi bi-truck me-1"></i> {{ order.tracking_number }}</small>
-                    {% endif %}
-                </div>
 
-                <div class="col-lg-4 col-md-3 text-center text-md-start">
-                    <div class="mb-1">
-                        <span class="status-dot dot-{{ order.status }}"></span>
-                        <span class="fw-bold text-capitalize">{{ order.get_status_display }}</span>
-                    </div>
-                    <div class="progress mt-2" style="height: 6px; border-radius: 10px; background-color: #f1f5f9;">
-                        {% if order.status == 'escrow' %}
-                            <div class="progress-bar bg-info" style="width: 25%"></div>
-                        {% elif order.status == 'shipped' %}
-                            <div class="progress-bar bg-primary" style="width: 60%"></div>
-                        {% elif order.status == 'delivered' or order.status == 'completed' %}
-                            <div class="mt-2">
-                            <a href="{% url 'download_invoice' order.id %}" 
-                            class="btn btn-sm btn-outline-primary w-100 rounded-pill py-2 fw-bold d-flex align-items-center justify-content-center"
-                            title="Download official PhoneBazar Receipt">
-                                <i class="bi bi-file-earmark-pdf me-2 fs-6"></i> 
-                                Download Invoice
-                            </a>
-                        </div>   
-                        {% endif %}
-                    </div>
-                  
-                </div>
+<div class="container dashboard-bg py-5">
 
-                <div class="col-lg-3 col-md-3 text-end">
-                    <h4 class="fw-bold mb-3">₹{{ order.total_price }}</h4>
-                    
-                    {% if order.status == 'delivered' %}
-                        <form action="{% url 'confirm_delivery' order.id %}" method="POST">
-                            {% csrf_token %}
-                            <button type="submit" class="btn btn-success btn-sm w-100 rounded-pill py-2 fw-bold" 
-                                    onclick="return confirm('Confirm you received the device safely in Surat?')">
-                                Confirm Receipt
-                            </button>
-                        </form>
-                    {% elif order.status == 'completed' %}
-                        {% if not order.feedback %}
-                            <a href="{% url 'leave_feedback' order.id %}" class="btn btn-outline-warning btn-sm w-100 rounded-pill py-2 fw-bold">
-                                <i class="bi bi-star-fill me-1"></i> Rate Seller
-                            </a>
-                        {% else %}
-                            <div class="text-warning fw-bold small">
-                                <i class="bi bi-check-circle-fill me-1"></i> Rated {{ order.feedback.average_rating }} / 5 ⭐
-                            </div>
-                        {% endif %}
-                    {% else %}
-                        <button class="btn btn-light btn-sm w-100 rounded-pill py-2 disabled">Processing...</button>
-                    {% endif %}
-                </div>
-            </div>
-        </div>
-    </div>
-    {% empty %}
-    <div class="text-center py-5 bg-white rounded-4 shadow-sm">
-        <i class="bi bi-bag-x text-muted opacity-25" style="font-size: 4rem;"></i>
-        <h4 class="fw-bold mt-3">No Orders Found</h4>
-        <p class="text-muted mb-4">Your next dream phone is waiting in our marketplace.</p>
-        <a href="{% url 'marketplace_home' %}" class="btn btn-primary rounded-pill px-5">Start Shopping</a>
-    </div>
-    {% endfor %}
+<!-- Welcome Section -->
+
+<div class="card welcome-card shadow-sm mb-5 p-4">
+
+<div class="d-flex justify-content-between align-items-center">
+
+<div>
+
+<h3 class="fw-bold mb-2">
+Welcome back, {{ request.user.firstname }} 👋
+</h3>
+
+<p class="mb-0 opacity-75">
+Track your orders, manage wishlist and explore verified phones.
+</p>
+
+</div>
+
+<div class="quick-actions d-flex gap-2">
+
+<a href="{% url 'marketplace_home' %}" class="btn btn-outline-light">
+Browse Phones
+</a>
+
+<a href="{% url 'My_Purchases' %}" class="btn btn-outline-light">
+My Orders
+</a>
+
+</div>
+
+</div>
+
+</div>
+
+
+
+<!-- Stats -->
+
+<div class="row g-4 mb-5">
+
+<div class="col-md-3">
+
+<div class="card stat-card shadow-sm p-4 text-center">
+
+<div class="stat-icon bg-primary bg-opacity-10 text-primary">
+<i class="bi bi-bag"></i>
+</div>
+
+<h4 class="fw-bold mt-3">
+{{ stats.total_orders }}
+</h4>
+
+<small class="text-muted">
+Total Orders
+</small>
+
+</div>
+
+</div>
+
+
+<div class="col-md-3">
+
+<div class="card stat-card shadow-sm p-4 text-center">
+
+<div class="stat-icon bg-info bg-opacity-10 text-info">
+<i class="bi bi-truck"></i>
+</div>
+
+<h4 class="fw-bold mt-3">
+{{ stats.active }}
+</h4>
+
+<small class="text-muted">
+Active Orders
+</small>
+
+</div>
+
+</div>
+
+
+<div class="col-md-3">
+
+<div class="card stat-card shadow-sm p-4 text-center">
+
+<div class="stat-icon bg-danger bg-opacity-10 text-danger">
+<i class="bi bi-heart"></i>
+</div>
+
+<h4 class="fw-bold mt-3">
+{{ stats.wishlist }}
+</h4>
+
+<small class="text-muted">
+Wishlist
+</small>
+
+</div>
+
+</div>
+
+
+<div class="col-md-3">
+
+<div class="card stat-card shadow-sm p-4 text-center">
+
+<div class="stat-icon bg-success bg-opacity-10 text-success">
+<i class="bi bi-currency-rupee"></i>
+</div>
+
+<h4 class="fw-bold mt-3">
+₹{{ stats.spent }}
+</h4>
+
+<small class="text-muted">
+Total Spent
+</small>
+
+</div>
+
+</div>
+
+</div>
+
+
+
+<!-- Recent Orders -->
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+
+<h4 class="fw-bold">
+Recent Orders
+</h4>
+
+<a href="{% url 'My_Purchases' %}" class="btn btn-sm btn-outline-primary rounded-pill">
+View All
+</a>
+
+</div>
+
+
+
+{% for order in orders|slice:":3" %}
+
+<div class="card order-card shadow-sm border-0 mb-3">
+
+<div class="card-body p-4">
+
+<div class="row align-items-center">
+
+<div class="col-md-2 text-center">
+
+{% if order.phone_listing.image %}
+
+<img src="{{ order.phone_listing.image.url }}"
+class="img-fluid rounded-3 border"
+style="width:70px;height:70px;object-fit:contain">
+
+{% endif %}
+
+</div>
+
+
+
+<div class="col-md-5">
+
+<h6 class="fw-bold mb-1">
+{{ order.phone_listing.brand }}
+{{ order.phone_listing.model_name }}
+</h6>
+
+<small class="text-muted">
+Order #PB-{{ order.id }}
+</small>
+
+</div>
+
+
+
+<div class="col-md-3">
+
+<span class="badge bg-light border text-dark px-3 py-2">
+{{ order.get_status_display }}
+</span>
+
+</div>
+
+
+
+<div class="col-md-2 text-end">
+
+<strong class="fs-5">
+₹{{ order.total_price }}
+</strong>
+
+</div>
+
+</div>
+
+</div>
+
+</div>
+
+{% empty %}
+
+<div class="text-center py-5 bg-white rounded-4 shadow-sm">
+
+<i class="bi bi-bag-x display-4 text-muted opacity-25"></i>
+
+<h5 class="fw-bold mt-3">
+No Orders Yet
+</h5>
+
+<p class="text-muted">
+Find your next phone today.
+</p>
+
+<a href="{% url 'marketplace_home' %}"
+class="btn btn-primary rounded-pill px-4 mt-2">
+Start Shopping
+</a>
+
+</div>
+
+{% endfor %}
+
 </div>
 
 {% endblock %}

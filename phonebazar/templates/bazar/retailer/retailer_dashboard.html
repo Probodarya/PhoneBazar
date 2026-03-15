@@ -1,187 +1,199 @@
-<style>
-    /* Premium Stat Cards */
-    .stat-card {
-        border-radius: 1.25rem;
-        transition: transform 0.3s ease, box-shadow 0.3s ease;
-        overflow: hidden;
-        position: relative;
-    }
-    .stat-card:hover {
-        transform: translateY(-5px);
-        box-shadow: 0 12px 20px rgba(0,0,0,0.1) !important;
-    }
-    .stat-card .icon-bg {
-        position: absolute;
-        right: -10px;
-        bottom: -10px;
-        font-size: 5rem;
-        opacity: 0.1;
-        color: #fff;
-    }
+{% extends "base.html" %}
 
-    /* Table & List Styling */
-    .inventory-table thead th {
-        background-color: #f8fafc;
-        color: #64748b;
-        text-transform: uppercase;
-        font-size: 0.75rem;
-        letter-spacing: 1px;
-        border: none;
-    }
-    .inventory-table tbody td {
-        border-bottom: 1px solid #f1f5f9;
-        padding: 1rem 0.75rem;
-    }
-
-    /* Review Scrollbox */
-    .review-list {
-        max-height: 450px;
-        overflow-y: auto;
-    }
-    .review-item {
-        border-left: 4px solid transparent;
-        transition: all 0.2s;
-    }
-    .review-item:hover {
-        background-color: #f8fafc;
-        border-left-color: #ffc107;
-    }
-</style>
-<{% extends "base.html" %}
 {% block content %}
-<div class="container-fluid px-4 py-5 bg-light min-vh-100">
-    <div class="d-flex justify-content-between align-items-center mb-5">
-        <div>
-            <h2 class="fw-bold mb-1">Retailer <span class="text-primary">Panel</span></h2>
-            <p class="text-muted mb-0">Welcome back, {{ request.user.first_name }} • Manage your Surat Storefront</p>
-        </div>
-        <div class="d-flex gap-2">
-            <button class="btn btn-outline-secondary rounded-pill px-4"><i class="bi bi-download me-2"></i>Export Report</button>
-            <a href="{% url 'post_phone_ad' %}" class="btn btn-primary rounded-pill px-4 shadow-sm">+ Add New Stock</a>
-        </div>
-    </div>
 
-    <div class="row g-4 mb-5">
-        <div class="col-md-3">
-            <div class="card stat-card bg-dark text-white p-4 border-0 shadow-sm">
-                <i class="bi bi-box-seam icon-bg"></i>
-                <small class="opacity-75 fw-bold">TOTAL INVENTORY</small>
-                <h2 class="fw-bold mt-2">{{ stats.total_stock }} <span class="fs-6 fw-normal">Units</span></h2>
-            </div>
-        </div>
-        <div class="col-md-3">
-            <div class="card stat-card bg-primary text-white p-4 border-0 shadow-sm">
-                <i class="bi bi-currency-rupee icon-bg"></i>
-                <small class="opacity-75 fw-bold">TOTAL REVENUE</small>
-                <h2 class="fw-bold mt-2">₹{{ stats.revenue }}</h2>
-            </div>
-        </div>
-        <div class="col-md-3">
-            <div class="card stat-card bg-success text-white p-4 border-0 shadow-sm">
-                <i class="bi bi-patch-check icon-bg"></i>
-                <small class="opacity-75 fw-bold">VERIFIED ADS</small>
-                <h2 class="fw-bold mt-2">{{ stats.verified }} <span class="fs-6 fw-normal">Active</span></h2>
-            </div>
-        </div>
-        <div class="col-md-3">
-            <div class="card stat-card bg-white text-dark p-4 border-0 shadow-sm border-start border-warning border-5">
-                <small class="text-muted fw-bold">STORE RATING</small>
-                <div class="d-flex align-items-center mt-2">
-                    <h2 class="fw-bold text-warning mb-0 me-2">{{ stats.avg_rating }}</h2>
-                    <div class="text-warning">
-                        <i class="bi bi-star-fill"></i>
-                    </div>
-                </div>
-                <small class="text-muted">{{ stats.review_count }} verified reviews</small>
-            </div>
-        </div>
-    </div>
+<style>
 
-    <div class="row g-4">
-        <div class="col-lg-8">
-            <div class="card border-0 shadow-sm rounded-4 h-100">
-                <div class="card-header bg-white border-0 py-4 px-4">
-                    <h5 class="mb-0 fw-bold"><i class="bi bi-list-stars me-2 text-primary"></i>Live Inventory</h5>
-                </div>
-                <div class="table-responsive px-4">
-                    <table class="table inventory-table align-middle">
-                        <thead>
-                            <tr>
-                                <th>Model Details</th>
-                                <th>Listing Price</th>
-                                <th>Quality Status</th>
-                                <th class="text-end">Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {% for item in listings %}
-                            <tr>
-                                <td>
-                                    <div class="fw-bold text-dark">{{ item.brand }}</div>
-                                    <div class="small text-muted">{{ item.model_name }}</div>
-                                </td>
-                                <td><span class="fw-bold text-primary">₹{{ item.price }}</span></td>
-                                <td>
-                                    {% if item.is_verified %}
-                                        <span class="badge rounded-pill bg-success-subtle text-success border border-success-subtle px-3 py-2">
-                                            <i class="bi bi-shield-check me-1"></i> Verified
-                                        </span>
-                                    {% else %}
-                                        <span class="badge rounded-pill bg-warning-subtle text-warning border border-warning-subtle px-3 py-2">
-                                            <i class="bi bi-clock-history me-1"></i> Testing
-                                        </span>
-                                    {% endif %}
-                                </td>
-                                <td class="text-end">
-                                    <button class="btn btn-sm btn-light rounded-circle"><i class="bi bi-pencil"></i></button>
-                                    <button class="btn btn-sm btn-light rounded-circle text-danger ms-1"><i class="bi bi-trash"></i></button>
-                                </td>
-                            </tr>
-                            {% empty %}
-                            <tr><td colspan="4" class="text-center py-5 text-muted">No stock found. Start by adding an ad.</td></tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        </div>
+.dashboard-bg{
+background:#f8fafc;
+min-height:100vh;
+}
 
-        <div class="col-lg-4">
-            <div class="card border-0 shadow-sm rounded-4 h-100">
-                <div class="card-header bg-white border-0 py-4 px-4 d-flex justify-content-between">
-                    <h5 class="mb-0 fw-bold">Recent Feedback</h5>
-                    <i class="bi bi-chat-quote fs-4 text-muted"></i>
-                </div>
-                <div class="card-body p-0 review-list">
-                    <div class="list-group list-group-flush">
-                        {% for review in reviews %}
-                        <div class="list-group-item review-item border-0 p-4">
-                            <div class="d-flex justify-content-between mb-2">
-                                <div class="text-warning">
-                                    {% for i in "12345" %}
-                                        <i class="bi bi-star{% if forloop.counter <= review.phone_condition_rating %}-fill{% endif %} small"></i>
-                                    {% endfor %}
-                                </div>
-                                <small class="text-muted font-monospace">{{ review.created_at|date:"d M" }}</small>
-                            </div>
-                            <p class="small text-dark fw-medium mb-1">"{{ review.comment|truncatechars:100 }}"</p>
-                            <div class="d-flex align-items-center">
-                                <div class="bg-primary rounded-circle text-white d-flex align-items-center justify-content-center me-2" style="width: 20px; height: 20px; font-size: 0.6rem;">
-                                    {{ review.buyer.get_username|first|upper }}
-                                </div>
-                                <small class="text-muted">{{ review.buyer.get_username }}</small>
-                            </div>
-                        </div>
-                        {% empty %}
-                        <div class="text-center py-5">
-                            <i class="bi bi-chat-dots display-4 text-muted opacity-25"></i>
-                            <p class="text-muted mt-2">Waiting for first review</p>
-                        </div>
-                        {% endfor %}
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
+/* welcome card */
+
+.welcome-card{
+border-radius:20px;
+background:linear-gradient(135deg,#1a237e,#3949ab);
+color:white;
+position:relative;
+overflow:hidden;
+}
+
+.welcome-card::after{
+content:"📱";
+position:absolute;
+right:20px;
+bottom:-10px;
+font-size:120px;
+opacity:.08;
+}
+/* stat cards */
+
+.stat-card{
+border-radius:16px;
+border:none;
+transition:.3s;
+}
+
+.stat-card:hover{
+transform:translateY(-4px);
+box-shadow:0 12px 25px rgba(0,0,0,.08);
+}
+
+/* listing card */
+
+.listing-card{
+border-radius:16px;
+transition:.3s;
+}
+
+.listing-card:hover{
+transform:translateY(-4px);
+box-shadow:0 15px 30px rgba(0,0,0,.08);
+}
+
+/* add phone button */
+
+.btn-add-phone{
+background:linear-gradient(135deg,#3949ab,#1a237e);
+color:white;
+padding:10px 22px;
+border-radius:30px;
+font-weight:600;
+text-decoration:none;
+display:inline-flex;
+align-items:center;
+transition:.3s;
+}
+
+.btn-add-phone:hover{
+color:white;
+transform:translateY(-2px);
+box-shadow:0 10px 20px rgba(0,0,0,.15);
+}
+
+</style>
+
+
+<div class="container dashboard-bg py-5">
+
+<!-- Header -->
+
+<div class="card welcome-card shadow-sm mb-5 p-4">
+
+<h4 class="fw-bold">
+Welcome back, {{ request.user.firstname }} 👋
+</h4>
+
+<p class="mb-0 opacity-75">
+Manage your listings and track your sales performance.
+</p>
+<a href="{% url 'post_phone_ad' %}" class="btn-add-phone">
+
+<i class="bi bi-plus-circle me-2"></i>
+Add New Phone
+
+</a>
 </div>
+
+
+
+<!-- Stats -->
+
+<div class="row g-4 mb-5">
+
+<div class="col-md-3">
+<div class="card stat-card p-4 text-center shadow-sm">
+<h6 class="text-muted">Total Listings</h6>
+<h3 class="fw-bold">{{ stats.total_listings }}</h3>
+</div>
+</div>
+
+<div class="col-md-3">
+<div class="card stat-card p-4 text-center shadow-sm">
+<h6 class="text-muted">Verified Phones</h6>
+<h3 class="fw-bold text-success">{{ stats.verified }}</h3>
+</div>
+</div>
+
+<div class="col-md-3">
+<div class="card stat-card p-4 text-center shadow-sm">
+<h6 class="text-muted">Total Orders</h6>
+<h3 class="fw-bold text-primary">{{ stats.total_orders }}</h3>
+</div>
+</div>
+
+<div class="col-md-3">
+<div class="card stat-card p-4 text-center shadow-sm">
+<h6 class="text-muted">Total Revenue</h6>
+<h3 class="fw-bold text-warning">₹{{ stats.revenue }}</h3>
+</div>
+</div>
+
+</div>
+
+
+
+<!-- Listings -->
+
+<h4 class="fw-bold mb-3">
+Recent Listings
+</h4>
+
+<div class="row g-4">
+
+{% for listing in listings %}
+
+<div class="col-md-4">
+
+<div class="card listing-card shadow-sm border-0 p-3 text-center h-100">
+
+{% if listing.image %}
+
+<img src="{{ listing.image.url }}"
+class="img-fluid mb-3"
+style="height:140px;object-fit:contain">
+
+{% endif %}
+
+<h6 class="fw-bold">
+{{ listing.brand }} {{ listing.model_name }}
+</h6>
+
+<p class="fw-bold text-primary">
+₹{{ listing.price }}
+</p>
+
+{% if listing.is_verified %}
+<span class="badge bg-success">Verified</span>
+{% else %}
+<span class="badge bg-warning text-dark">Pending</span>
+{% endif %}
+
+</div>
+
+</div>
+
+{% empty %}
+
+<div class="text-center py-5 bg-white rounded-4 shadow-sm">
+
+<i class="bi bi-phone display-4 text-muted opacity-25"></i>
+
+<h5 class="fw-bold mt-3">
+No phones listed yet
+</h5>
+
+<a href="{% url 'post_phone_ad' %}" class="btn-add-phone mt-3">
+Add Your First Phone
+</a>
+
+</div>
+
+{% endfor %}
+
+</div>
+
+</div>
+
 {% endblock %}

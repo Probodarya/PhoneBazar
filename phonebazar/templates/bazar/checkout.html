@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<div class="container py-5">
+
+<h3>Checkout Page</h3>
+
+<h5>{{ phone.brand }} {{ phone.model_name }}</h5>
+
+<p>Price: ₹{{ phone.price }}</p>
+
+{% if address %}
+<p>
+<strong>{{ address.full_name }}</strong><br>
+{{ address.address_line }}<br>
+{{ address.city }} - {{ address.pincode }}<br>
+📞 {{ address.phone_number }}
+</p>
+{% else %}
+<p>No address found</p>
+<a href="{% url 'saved_addresses' %}">Add Address</a>
+{% endif %}
+
+<form method="POST">
+{% csrf_token %}
+<button class="btn btn-primary">Place Order</button>
+</form>
+
+</div>
+
+{% endblock %}
